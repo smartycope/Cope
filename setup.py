@@ -4,7 +4,7 @@ setup(
     name='Cope',
     version='1.1.0',
     description='A bunch of generic functions and classes useful in multiple projects',
-    url='',
+    url='https://github.com/smartycope/Cope',
     author='Copeland Carter',
     author_email='smartycope@gmail.com',
     license='GPL 3.0',
