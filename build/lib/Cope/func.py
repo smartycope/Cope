@@ -1,5 +1,3 @@
-
-################################### Misc. Useful Classes ###################################
 class FunctionCall:
     """ A helpful class that represents an as-yet uncalled function call with parameters """
     def __init__(self, func=lambda: None, args=(), kwargs={}):

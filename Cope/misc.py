@@ -1,6 +1,14 @@
-from .decorators import todo, confidence
+# from .decorators import todo, confidence
 from .imports import dependsOnPackage
+from .debugging import getVarName, beingUsedAsDecorator, debug, getMetaData
+from .colors import ERROR
+import re
+import subprocess
+from os.path import join
+from random import randint
+import sys
 
+from unicodedata import normalize
 
 def available(*args, fail_if_none=True):
     """ Returns the parameter passed to it which is not None, failing if more than one is None,
@@ -173,8 +181,8 @@ def insert_newlines(string, max_line_length):
     return result
 
 def assertValue(param, *values, blocking=True):
-    paramName = _debugGetVarName(param)
-    if not _debugBeingUsedAsDecorator('assertValue'):
+    paramName = getVarName(param)
+    if not beingUsedAsDecorator('assertValue'):
         if param not in values:
             err = TypeError(f"Invalid value for {paramName}, must be one of: {values}")
             if blocking:
@@ -182,7 +190,7 @@ def assertValue(param, *values, blocking=True):
             else:
                 debug(err)
     else:
-        todo('usage as a decorator')
+        print('TODO: AssertValue usage as a decorator')
 
 # @confidence(72)
 def replaceLine(line, offset=0, keepTabs=True, convertTabs=True, additionalCalls=0):
@@ -190,7 +198,7 @@ def replaceLine(line, offset=0, keepTabs=True, convertTabs=True, additionalCalls
         This is probably a very bad idea to actually use.
         Don't forget to add tabs! Newline is already taken care of (unless you want to add more).
     """
-    meta = _debugGetMetaData(calls=2 + additionalCalls)
+    meta = getMetaData(calls=2 + additionalCalls)
 
     with open(meta.filename, 'r') as f:
         file = f.readlines()
@@ -198,7 +206,7 @@ def replaceLine(line, offset=0, keepTabs=True, convertTabs=True, additionalCalls
     # Not really sure of the reason for the -1.
     if file[meta.lineno-1] == meta.code_context[0]:
         if keepTabs:
-            tabs = rematch(file[meta.lineno-1 + offset], r'\s+')
+            tabs = re.match(file[meta.lineno-1 + offset], r'\s+')
             if tabs:
                 line = tabs.string + line
 
@@ -208,7 +216,7 @@ def replaceLine(line, offset=0, keepTabs=True, convertTabs=True, additionalCalls
         file[meta.lineno-1 + offset] = line + '\n'
 
     else:
-        debug(f"Error: lines don't match, not replacing line.\n\tMetadata: \"{meta.code_context}\"\n\tFile: \"{file[meta.lineno-1]}\"", clr=Colors.ERROR)
+        debug(f"Error: lines don't match, not replacing line.\n\tMetadata: \"{meta.code_context}\"\n\tFile: \"{file[meta.lineno-1]}\"", clr=ERROR)
         return
 
     with open(meta.filename, 'w') as f:
@@ -252,8 +260,12 @@ def slugify(value, allow_unicode=False, allow_space=False, convert_case=True):
         value = normalize('NFKC', value)
     else:
         value = normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
-    value = resub(r'[^\w\s-]', '', value.lower() if convert_case else value)
-    return resub(r'[-\n\r\t\v\f]+' if allow_space else r'[-\s]+', '-', value).strip('-_')
+    value = re.sub(r'[^\w\s-]', '', value.lower() if convert_case else value)
+    return re.sub(r'[-\n\r\t\v\f]+' if allow_space else r'[-\s]+', '-', value).strip('-_')
+
+def catFile(f):
+    with open(f, 'r') as f:
+        return f.read()
 
 # No, English does not make any sense.
 def umpteenthName(i:int) -> "1st, 2nd, 3rd, etc.":
@@ -298,6 +310,39 @@ def letterGrade(percentage):
         return 'A'
     # else:
         # unreachableState()
+
+
+def cp(thing=None, rnd=3, show=False, notIterable=True, evalf=True):
+    from sympy import latex
+    from clipboard import copy
+    if thing is None:
+        thing = _
+
+    if notIterable:
+            thing = ensureNotIterable(thing)
+
+    if isinstance(thing, Basic) and not isinstance(thing, Float) and not evalf:
+        copy(latex(thing))
+        if show:
+            print('latexing')
+    else:
+        try:
+            if evalf:
+                try:
+                    thing = thing.evalf()
+                except: pass
+            if rnd:
+                copy(str(round(thing, rnd)))
+                if show:
+                    print('rounding')
+            else:
+                raise Exception()
+        except:
+            copy(str(thing))
+            if show:
+                print('stringing')
+    return thing
+
 
 class CommonResponses:
     """ A collection of default responses for inputs. Make sure to use .lower() when testing agaisnt these.

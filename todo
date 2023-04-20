@@ -1,8 +1,7 @@
-
-################################### Suggested Features ###################################
 #! make confidence print the confidence level -- needs testing
 #! make that self-modifying function, both one that removes itself and one that adds a line above it -- needs more testing
 #! KeyShortcut could use more testing
+# parseColors needs changed
 #? I think @debug and @todo are still failing periodically -- needs debugging
 #// Add a function that takes a parameter and a bunch of values and just checks to see if the parameter is one of those values, otherwise throws a type error with a preset message -- Done?
 #// get the key class that I wrote on Rebecca
@@ -26,6 +25,9 @@
 #? Add the + operator to keys so you can add keys to make a KeyShortcut (figure out prototyping)
 #todo Make debug show generators (map, filter, range, etc) like lists and other iterables
 #todo checkImport vs ensureImport
+# add nice typing for everything
+# Add nice comments to everything
+# review all code and remove no longer used stuff
 #todo add a priority parameter to todo (maybe change the color?)
 #? My color function (whatever is coloring debug and todo) still colors errors after it. possibly in a different thread.
 #? remove duplicates sucks (still returning a generator)

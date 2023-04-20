@@ -1,35 +1,29 @@
 import math
+# from .misc import constrain
+# Default color constants
+DEFAULT = (204, 204, 204)
+ALERT   = (220, 0, 0)
+WARN    = (150, 30, 30)
+ERROR   = ALERT
 
+# Default colors for debugging -- None for using the previously set color
+NOTE_CALL          = (211, 130, 0)
+EMPTY              = NOTE_CALL
+CONTEXT            = None
+COUNT              = (34, 111, 157)
+DEFAULT_DEBUG      = (34, 179, 99)
+TODO               = (128, 64, 64)
+STACK_TRACE        = (159, 148, 211)
+CONFIDENCE_WARNING = (255, 190, 70)
+DEPRICATED_WARNING = WARN
+LOG_COLOR          = (100, 130, 140)
 
-class Colors:
-    # Default color constants
-    DEFAULT = (204, 204, 204)
-    ALERT   = (220, 0, 0)
-    WARN    = (150, 30, 30)
-    ERROR   = ALERT
+DEBUG_EQUALS          = DEFAULT
+DEBUG_METADATA_DARKEN = 70
+DEBUG_TYPE_DARKEN     = 10
+DEBUG_NAME_DARKEN     = -60
+DEBUG_VALUE_DARKEN    = 0
 
-    # A set of distinct characters for debugging
-    # _colors = [(43, 142, 213), (19, 178, 118), (163, 61, 148), (255, 170, 0), (255, 170, 255), (170, 0, 255)]
-
-    # Default colors for debugging -- None for using the previously set color
-    NOTE_CALL          = (211, 130, 0)
-    EMPTY              = NOTE_CALL
-    CONTEXT            = None
-    COUNT              = (34, 111, 157)
-    DEFAULT_DEBUG      = (34, 179, 99)
-    TODO               = (128, 64, 64)
-    STACK_TRACE        = (159, 148, 211)
-    CONFIDENCE_WARNING = (255, 190, 70)
-    DEPRICATED_WARNING = WARN
-    LOG_COLOR          = (100, 130, 140)
-
-    DEBUG_EQUALS          = DEFAULT
-    DEBUG_METADATA_DARKEN = 70
-    DEBUG_TYPE_DARKEN     = 10
-    DEBUG_NAME_DARKEN     = -60
-    DEBUG_VALUE_DARKEN    = 0
-
-################################### Color Utilites ###################################
 
 def distinctColor(n: int) -> tuple:
     # First, ensure if it's 0, we return black
@@ -62,7 +56,7 @@ def parseColorParams(r, g=None, b=None, a=None, bg=False) -> "((r, g, b, a), bac
     """
     #* We've been given the name of a color
     if type(r) is str:
-        raise NotImplementedError(f"parseColorParams does not yet support named colors")
+        raise NotImplementedError("parseColorParams does not yet support named colors")
     #* We've been given a list of values
     elif isinstance(r, (tuple, list)):
         if len(r) not in (3, 4):
@@ -87,7 +81,7 @@ def parseColorParams(r, g=None, b=None, a=None, bg=False) -> "((r, g, b, a), bac
 
     #* We've been given None
     elif r is None:
-        return (Colors.DEFAULT, bg)
+        return (DEFAULT, bg)
 
     #* We're not sure how to interpret the parameters given
     else:
@@ -103,7 +97,7 @@ class coloredOutput:
             to have the terminal reset to that color instead of white.
         https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
     """
-    def __init__(self, r, g=None, b=None, foreground=True, curColor=Colors.DEFAULT):
+    def __init__(self, r, g=None, b=None, foreground=True, curColor=DEFAULT):
         color, bg = parseColorParams(r, g, b, bg=foreground)
         self.fg = bg
         self.r, self.g, self.b = color
@@ -135,7 +129,7 @@ def darken(amount, r, g=None, b=None, a=None):
 
 def lighten(amount, r, g=None, b=None, a=None):
     """ Returns the given color, but darkened. Make amount negative to darken """
-    return tuple([constrain(i + amount, 0, 255) for i in parseColorParams(r, g, b, a)[0]])
+    return tuple([min(max(i + amount, 0), 255) for i in parseColorParams(r, g, b, a)[0]])
 
 def clampColor(r, g=None, b=None, a=None):
     """ Clamp a 0-255 color to a float between 1 and 0.
@@ -151,6 +145,6 @@ def invertColor(r, g=None, b=None, a=None):
     # return tuple(255 - c for c in rgba[0])
     return tuple(255 - c for c in rgba)
 
-def printColor(s, color=Colors.DEFAULT, **kwargs):
+def printColor(s, color=DEFAULT, **kwargs):
     with coloredOutput(color):
         print(s, **kwargs)

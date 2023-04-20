@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Union, SupportsInt
-from typing import Any, Callable, Iterable, Optional, Union, SupportsInt
 
 ENABLE_TESTING = True
 
@@ -23,7 +22,7 @@ HIDE_TODO    = False
 # DIR  = dirname(__file__)
 DIR  = None
 # ROOT = dirname(DIR) if basename(DIR) in ('src', 'source') else DIR
-ROOT = None#dirname(DIR) if basename(DIR) in ('src', 'source') else DIR
+ROOT = None  #dirname(DIR) if basename(DIR) in ('src', 'source') else DIR
 HOME = str(Path.home())
 
 # Yes, this is not strictly accurate.
@@ -33,13 +32,10 @@ VERBOSE = True
 DEBUG_LEVEL = LOG_LEVEL = 0
 
 
-
 number = Union[int, float, SupportsInt]
 HIDE_TODO = False
 
 
-
-################################### Setters for Globals ###################################
 def displayAllFiles(to=True):
     global DISPLAY_FILE
     DISPLAY_FILE = to

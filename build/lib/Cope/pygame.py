@@ -1,5 +1,3 @@
-
-#* Pygame
 @dependsOnPackage('pygame')
 def loadImage(filename):
     # if pygame.image.get_extended():

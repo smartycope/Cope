@@ -1,5 +1,6 @@
-from .colors import Colors
+from .colors import LOG_COLOR, coloredOutput, WARN
 from .constants import LOG_LEVEL
+from .debugging import printContext
 from enum import Enum
 
 class LogLevel(Enum):
@@ -9,7 +10,7 @@ class LogLevel(Enum):
     ERRORS = 3
 
 
-def log(message, levelReq=LogLevel.LOGGING, color=Colors.LOG_COLOR):
+def log(message, levelReq=LogLevel.LOGGING, color=LOG_COLOR):
     if not __debug__: return
     if LOG_LEVEL >= levelReq.value:
         printContext(2)
@@ -18,7 +19,7 @@ def log(message, levelReq=LogLevel.LOGGING, color=Colors.LOG_COLOR):
 
 def warn(message):
     if not __debug__: return
-    log(message, color=Colors.WARN)
+    log(message, color=WARN)
 warning = warn
 
 def unreachableState(message=''):

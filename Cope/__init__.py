@@ -1,3 +1,4 @@
+__version__ = '1.2.1'
 from .constants import *
 from .debugging import debug
 from .decorators import *
@@ -12,3 +13,6 @@ from .prettyTable import *
 from .iterables import *
 from .func import *
 from .colors import *
+from .errors import *
+# from .linalg import *
+from . import linalg

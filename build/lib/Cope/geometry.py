@@ -1,5 +1,3 @@
-
-################################### Geometry functions ###################################
 def absdeg(angle):
     """ If an angle (in degrees) is not within 360, then this cuts it down to within 0-360 """
     angle = angle % 360.0
@@ -13,21 +11,6 @@ def absrad(angle):
     if angle < 0:
         angle += (pi*2)
     return angle
-
-# Turns out there's already multiple implementations of these I just wasn't seeing
-# def deg2rad(a, symbolic=False):
-    # if symbolic:
-    #     if ensureImported('sympy', 'pi', fatal=True):
-    #         return (a * pi / 180).simplify()
-    # else:
-    #     return a * PI / 180.0
-
-# def rad2deg(a, symbolic=False):
-    # if symbolic:
-    #     if ensureImported('sympy', 'pi', fatal=True):
-    #         return (a * 180 / pi).simplify()
-    # else:
-    #     return a * 180.0 / PI
 
 def dist(ax, ay, bx, by):
     return sqrt(((bx - ax)**2) + ((by - ay)**2))
@@ -68,7 +51,14 @@ def round2(num, digits=3, tostr=True, scinot:int=False):
     if scinot:
         ensureImported('scinot', _as="scinotation")
         if not tostr:
-            raise TypeError(f"Can't round using scientific notation and not return a string")
+            raise TypeError("Can't round using scientific notation and not return a string")
         return scinotation.format(ans, scinot)
     else:
         return '{:1f}'.format(ans) if tostr else ans
+
+def largest_square(n, sideLen=1):
+    """ Take the square root of the input number
+        and round down to the nearest integer
+    """
+    side = int(n ** (sideLen/2))
+    return (side, side)

@@ -1,25 +1,31 @@
 from .imports import ensureImported
-from .colors import Colors, coloredOutput, darken, lighten, resetColor, printColor
+from .colors import coloredOutput, darken, resetColor, printColor, COUNT, CONTEXT, DEFAULT_DEBUG, WARN, ALERT, DEBUG_METADATA_DARKEN, DEBUG_TYPE_DARKEN, DEBUG_NAME_DARKEN, DEBUG_EQUALS, DEBUG_VALUE_DARKEN, NOTE_CALL, STACK_TRACE
+from re import search as re_search
+# import .colors as colors
 from ._None import _None
 from .constants import VERBOSE
 from os import get_terminal_size
+from os.path import basename
+from typing import Union
+from inspect import stack
 # from . import colors
-# from varname import ImproperUseError, VarnameRetrievingError, argname, nameof
+# from varname import VarnameRetrievingError, argname, nameof
+
 DISPLAY_FILE = ''
 DISPLAY_FUNC = ''
 DISPLAY_LINK = ''
 DISPLAY_PATH = ''
 ROOT = ''
-from typing import Union
 
-varnameImported = ensureImported('varname', ('ImproperUseError', 'VarnameRetrievingError', 'argname', 'nameof'), fatal=False)
-from inspect import stack
+varnameImported = ensureImported('varname', ('ImproperUseError', 'VarnameRetrievingError', 'argname', 'nameof'))
 _debugCount = 0
-
 
 DEBUGGING_DEBUG = False
 _repr = repr
 
+def printArgs(*args, **kwargs):
+    print('args:', args)
+    print('kwargs:', kwargs)
 
 def getMetaData(calls=1):
     """ Gets the meta data of the line you're calling this function from.
@@ -79,7 +85,6 @@ def getListStr(iterable: Union[tuple, list, set, dict], useMultiline:bool=True, 
         rtnStr = defaultStr + lengthAddOn
 
     return rtnStr
-
 
     """
     if type(v) in (tuple, list, set) and len(v) > minItems:
@@ -160,7 +165,7 @@ def printLink(filename, lineNum, function=None):
     """
     try:
         printColor('', color=(40, 43, 46))
-        if function is None: #    \|/  Oddly enough, this double quote is nessicary
+        if function is None:  #    \|/  Oddly enough, this double quote is nessicary
             print('\t', filename, '", line ', lineNum, '\033[0m', sep='')
         else:
             print('\tFile "', filename, '", line ', lineNum, ', in ', function, sep='')
@@ -171,7 +176,7 @@ def printLink(filename, lineNum, function=None):
     resetColor()
     print('\033[0m', end='')
 
-def debugCount(leftAdjust=2, color: int=Colors.COUNT):
+def debugCount(leftAdjust=2, color: int=COUNT):
     global _debugCount
     _debugCount += 1
     with coloredOutput(color):
@@ -179,7 +184,7 @@ def debugCount(leftAdjust=2, color: int=Colors.COUNT):
 
 def manualGetVarName(var, full=True, calls=2, metadata=None):
     try:
-        return research(r'(?<=debug\().+(?=,(\s)?[name color showFunc showFile showPath useRepr calls background limitToLine minItems maxItems stackTrace raiseError clr _repr trace bg throwError throw \) ])',
+        return re_search(r'(?<=debug\().+(?=,(\s)?[name color showFunc showFile showPath useRepr calls background limitToLine minItems maxItems stackTrace raiseError clr _repr trace bg throwError throw \) ])',
                          metadata.code_context[0]).group()
     except:
         return '?'
@@ -264,7 +269,7 @@ def beingUsedAsDecorator(funcName, metadata=None, calls=1) -> 'Union[1, 2, 3, Fa
 
     return False
 
-def printContext(calls=1, color=Colors.CONTEXT, showFunc=True, showFile=True, showPath=True):
+def printContext(calls=1, color=CONTEXT, showFunc=True, showFile=True, showPath=True):
     debugCount()
     with coloredOutput(color):
         print(getContext(getMetaData(1 + calls), True,
@@ -293,7 +298,7 @@ def debug(var=_None,                # The variable to debug
           bg: bool=False,           # Alias of background
           throwError: bool=False,   # Alias of raiseError
           throw: bool=False         # Alias of raiseError
-    ) -> "var":
+          ) -> "var":
     """ Print variable names and values for easy debugging.
 
         Usage:
@@ -323,22 +328,22 @@ def debug(var=_None,                # The variable to debug
             trace: Alias of stackTrace
             bg: Alias of background
     """
-    if not active:
-        return
+    if not active or not __debug__:
+        return var
 
     stackTrace = stackTrace or trace
     useRepr = useRepr or repr
     background = background or bg
     throwError = throw or throwError or raiseError
-    useColor = (Colors.DEFAULT_DEBUG if clr is _None else clr) if color is _None else color
+    useColor = (DEFAULT_DEBUG if clr is _None else clr) if color is _None else color
 
     if maxItems < 0 or maxItems is None:
         maxItems = 1000000
 
     if isinstance(var, Warning):
-        useColor = Colors.WARN
+        useColor = WARN
     elif isinstance(var, Exception):
-        useColor = Colors.ALERT
+        useColor = ALERT
 
     # +1 call because we don't want to get this line, but the one before it
     metadata = getMetaData(calls+1)
@@ -352,11 +357,10 @@ def debug(var=_None,                # The variable to debug
             debugCount()
 
             if stackTrace:
-                with coloredOutput(Colors.STACK_TRACE):
+                with coloredOutput(STACK_TRACE):
                     printStackTrace(2, True, showFunc, showFile, showPath)
 
-
-            with coloredOutput(Colors.NOTE_CALL):
+            with coloredOutput(NOTE_CALL):
                 print(getContext(metadata, True, showFunc or DISPLAY_FUNC, showFile or DISPLAY_FILE, showPath or DISPLAY_PATH), end='')
                 print(f'{var.__name__}() called!')
                 # print(args)
@@ -367,24 +371,23 @@ def debug(var=_None,                # The variable to debug
     debugCount()
 
     if stackTrace:
-        with coloredOutput(Colors.STACK_TRACE):
+        with coloredOutput(STACK_TRACE):
             printStackTrace(calls+1, True, showFunc, showFile, showPath)
 
     #* Only print the "HERE! HERE!" message
     if var is _None:
-        with coloredOutput(useColor if color is not _None else Colors.EMPTY, not background):
+        with coloredOutput(useColor if color is not _None else EMPTY, not background):
             print(getContext(metadata, True, showFunc or DISPLAY_FUNC, showFile or DISPLAY_FILE, showPath or DISPLAY_PATH), end='')
             if not metadata.function.startswith('<'):
                 print(f'{metadata.function}() called ', end='')
             print('HERE!')
         return
 
-
-    metadataColor = darken(Colors.DEBUG_METADATA_DARKEN,  useColor)
-    typeColor     = darken(Colors.DEBUG_TYPE_DARKEN,  useColor)
-    nameColor     = darken(Colors.DEBUG_NAME_DARKEN, useColor)
-    equalsColor   = Colors.DEBUG_EQUALS
-    valueColor    = darken(Colors.DEBUG_VALUE_DARKEN, useColor)
+    metadataColor = darken(DEBUG_METADATA_DARKEN,  useColor)
+    typeColor     = darken(DEBUG_TYPE_DARKEN,  useColor)
+    nameColor     = darken(DEBUG_NAME_DARKEN, useColor)
+    equalsColor   = DEBUG_EQUALS
+    valueColor    = darken(DEBUG_VALUE_DARKEN, useColor)
     #* Print the standard line
     with coloredOutput(metadataColor, not background):
         print(getContext(metadata, True,
@@ -408,7 +411,7 @@ def debug(var=_None,                # The variable to debug
         # It's a string literal
         if varName is None:
             print(var)
-            return
+            return var
 
     with coloredOutput(typeColor, not background):
         print(varType, end=' ')

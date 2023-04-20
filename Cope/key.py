@@ -200,7 +200,7 @@ class KeyStandard:
         "hangul": 353,
         "hanja": 354,
         "help": 355,
-        "home": 356,
+        # "home": 356,
         "junja": 357,
         "kana": 358,
         "kanji": 359,
@@ -240,7 +240,7 @@ class KeyStandard:
         "dollar": ascii["dollarSign"],
         "percent": ascii["percent"],
         "andersand": ascii["andersand"],
-        "and": ascii["andersand"],
+        # "and": ascii["andersand"],
         "and_": ascii["andersand"],
         "singleQuote": ascii["singleQuote"],
         "openParen": ascii["openParen"],
@@ -412,9 +412,9 @@ class KeyStandard:
         "f28": ascii["F28"],
         "f29": ascii["F29"],
         "f30": ascii["F30"],
-        "escape": ascii["escape"],
-        "delete": ascii["delete"],
-        "ctrl": ascii["ctrl"],
+        # "escape": ascii["escape"],
+        # "delete": ascii["delete"],
+        # "ctrl": ascii["ctrl"],
         "control": ascii["ctrl"],
         "win": ascii["win"],
         "command": ascii['win'],
@@ -422,7 +422,7 @@ class KeyStandard:
         "windows": ascii['win'],
         "windowsKey": ascii['win'],
         "shift": ascii["shift"],
-        "alt": ascii["alt"],
+        # "alt": ascii["alt"],
         "rightCtrl": ascii["rightCtrl"],
         "ctrlRight": ascii["rightCtrl"],
         "leftCtrl": ascii["leftCtrl"],
@@ -436,26 +436,26 @@ class KeyStandard:
         "leftAlt": ascii["leftAlt"],
         "altLeft": ascii["leftAlt"],
         "alternate": ascii["alt"],
-        "backspace": ascii["backspace"],
-        "home": ascii["home"],
-        "end": ascii["end"],
-        "enter": ascii["enter"],
-        "return": ascii["enter"],
-        "insert": ascii["insert"],
+        # "backspace": ascii["backspace"],
+        # "home": ascii["home"],
+        # "end": ascii["end"],
+        # "enter": ascii["enter"],
+        # "return": ascii["enter"],
+        # "insert": ascii["insert"],
         "pageUp": ascii["pageUp"],
         "pageDown": ascii["pageDown"],
         "up": ascii["up"],
-        "down": ascii["down"],
-        "left": ascii["left"],
+        # "down": ascii["down"],
+        # "left": ascii["left"],
         "right": ascii["right"],
         "printScreen": ascii["printScreen"],
-        "prtscr": ascii['printScreen'],
+        # "prtscr": ascii['printScreen'],
         "prtScr": ascii['printScreen'],
         "PrtScr": ascii['printScreen'],
         "scrollLock": ascii["scrollLock"],
-        "pause": ascii["pause"],
+        # "pause": ascii["pause"],
         "play": ascii["pause"],
-        "stop": ascii["stop"],
+        # "stop": ascii["stop"],
         "forward": ascii["next"],
         "next": ascii["next"],
         "skip": ascii['next'],
@@ -579,7 +579,7 @@ class KeyStandard:
         "del": ascii["delete"],
         "delete": ascii["delete"],
         "divide": ascii["slash"],
-        "down": ascii["down"],
+        # "down": ascii["down"],
         "end": ascii["end"],
         "enter": ascii["enter"],
         "esc": ascii["escape"],
@@ -593,7 +593,7 @@ class KeyStandard:
         "hanja": ascii["hanja"],
         "help": ascii["help"],
         "home": ascii["home"],
-        "insert": ascii["insert"],
+        # "insert": ascii["insert"],
         "junja": ascii["junja"],
         "kana": ascii["kana"],
         "kanji": ascii["kanji"],
@@ -601,7 +601,7 @@ class KeyStandard:
         "launchapp2": ascii["launchApp2"],
         "launchmail": ascii["launchMail"],
         "launchmediaselect": ascii["launchMediaSelect"],
-        "left": ascii["left"],
+        # "left": ascii["left"],
         "modechange": ascii["changeMode"],
         "multiply": ascii["star"],
         "nexttrack": ascii["next"],
@@ -619,7 +619,7 @@ class KeyStandard:
         "numlock": ascii["numLock"],
         "pagedown": ascii["pageDown"],
         "pageup": ascii["pageUp"],
-        "pause": ascii["pause"],
+        # "pause": ascii["pause"],
         "pgdn": ascii["pageDown"],
         "pgup": ascii["pageUp"],
         "playpause": ascii["pause"],
@@ -628,30 +628,30 @@ class KeyStandard:
         "printscreen": ascii["printScreen"],
         "prntscrn": ascii["printScreen"],
         "prtsc": ascii["printScreen"],
-        "prtscr": ascii["printScreen"],
-        "return": ascii["enter"],
-        "right": ascii["right"],
+        # "prtscr": ascii["printScreen"],
+        # "return": ascii["enter"],
+        # "right": ascii["right"],
         "scrolllock": ascii["scrollLock"],
         "select": ascii["select"],
         "separator": ascii["orLine"],
-        "shift": ascii["shift"],
+        # "shift": ascii["shift"],
         "shiftleft": ascii["leftShift"],
         "shiftright": ascii["rightShift"],
         "sleep": ascii["sleep"],
-        "space": ascii["space"],
+        # "space": ascii["space"],
         "stop": ascii["stop"],
         "subtract": ascii["minus"],
         "tab": ascii["tab"],
-        "up": ascii["up"],
+        # "up": ascii["up"],
         "volumedown": ascii["volumeDown"],
         "volumemute": ascii["mute"],
         "volumeup": ascii["volumeUp"],
-        "win": ascii["win"],
+        # "win": ascii["win"],
         "winleft": ascii["leftWin"],
         "winright": ascii["rightWin"],
         "yen": ascii["yen"],
-        "command": ascii["win"],
-        "option": ascii["option"],
+        # "command": ascii["win"],
+        # "option": ascii["option"],
         "optionleft": ascii["leftOption"],
         "optionright": ascii["rightOption"],
     }
@@ -659,7 +659,7 @@ class KeyStandard:
     # Qt = ({ } if not checkImport('pyside6', 'keyboard', fatal=False, printWarning=False) else {
     # })
 
-    pynput = ({ } if not checkImport('pynput', 'keyboard', fatal=False, printWarning=False) else {
+    pynput = ({} if not checkImport('pynput', 'keyboard', fatal=False, printWarning=False) else {
         keyboard.Key.alt:               string['alt'],
         keyboard.Key.alt_gr:            string['alt'],
         keyboard.Key.alt_l:             string['leftAlt'],
@@ -732,9 +732,9 @@ class KeyStandard:
         keyboard.Key.up:                string['up'],
     })
 
-    pyautogui = {} # Just uses strings
+    pyautogui = {}  # Just uses strings
 
-    pygame = ({ } if not checkImport('pygame', fatal=False, printWarning=False) else {
+    pygame = ({} if not checkImport('pygame', fatal=False, printWarning=False) else {
     })
 
     standards = (ascii, string, pynput, pyautogui, pygame)
@@ -743,7 +743,7 @@ class Key:
     """ A generalized Key class to bridge the gap between several standards.
         Mouse buttons are not included. Neither are controllers.
     """
-    useRightLeft=False
+    useRightLeft = False
 
     @staticmethod
     def dropRightLeft(key: "Key"):
@@ -861,7 +861,6 @@ class KeyShortcut:
             except KeyError:
                 self.heldKeys.clear()
 
-
         # debug(self.heldKeys, clr=4)
 
         valid = True
@@ -880,6 +879,7 @@ class KeyChord:
 
 class KeySequence:
     triggered = Signal()
+
     def __init__(self, *keySequence):
         self.sequence = keySequence
         self.activeMods = dict(zip(modifierKeys, (False,) * len(modifierKeys)))
@@ -888,7 +888,7 @@ class KeySequence:
     def update(self, key, pressed):
         todo('not finished', blocking=True)
         if key in modifierKeys:
-           self.activeMods[key] = pressed
+            self.activeMods[key] = pressed
 
         self.currentSequence.append(key)
 

@@ -1,5 +1,5 @@
 from ._None import _None
-from .decorators import confidence, todo
+from .decorators import todo
 from typing import Union, Callable, Iterable
 
 def isiterable(obj, includeStr=False):
@@ -51,6 +51,24 @@ def flattenList(iterable, recursive=False, useList=True):
     return rtn
     # print(flattenList(('a', 'b', [1, 2, 3]), useList=False))
 
+def findIndex(iter, value):
+    #Finds index in list l that is closest to value.
+    #Uses a binary search.
+    low = 0
+    high = len(iter)-1
+    while low+1 < high:
+        mid = (low+high) // 2
+        if iter[mid] > value:
+            high = mid
+        elif iter[mid] < value:
+            low = mid
+        else:
+            return mid
+    if abs(iter[high]-value) < abs(iter[low]-value):
+        return high
+    else:
+        return low
+
 def removeDuplicates(iterable, method='sorted set'):
     method = method.lower()
     if method == 'set':
@@ -61,7 +79,7 @@ def removeDuplicates(iterable, method='sorted set'):
         seen = set()
         for item in seq:
             if item not in seen:
-                seen.add( item )
+                seen.add(item)
                 yield item
     elif method == 'manual':
         dups = {}
@@ -129,14 +147,13 @@ class LoopingList(list):
             return super().__getitem__(index)
 
 
-
-
 # TODO add the __roperator__ functions
 class MappingList(list):
     """ An iterable that functions exactly like a list, except any operators applied to it
         are applied equally to each of it's memebers, and return a mapping list instance.
     """
     unmatchedLenError = TypeError('Cannot evaluate 2 MappingLists of differing length')
+
     def __init__(self, *args):
         super().__init__(ensureIterable(ensureNotIterable(args)))
 
@@ -224,11 +241,6 @@ class MappingList(list):
     def __ceil__(self):
         for i in range(len(self)):
             self[i] = self[i].__ceil__()
-        return self
-
-    def __trunc__(self):
-        for i in range(len(self)):
-            self[i] = self[i].__trunc__()
         return self
 
     def __add__(self, other):
@@ -515,7 +527,7 @@ class MultiAccessDict(dict):
     """
     def __getitem__(self, *keys):
         if len(keys) == 0:
-            raise KeyError(f"No input parameters given")
+            raise KeyError("No input parameters given")
         return [super().__getitem__(key) for key in keys]
 
     def __setitem__(self, *keys, value):
@@ -526,7 +538,7 @@ class ZerosMultiAccessDict(ZerosDict):
     """ A combonation of a ZerosDict and a MultiAccessDict """
     def __getitem__(self, keys):
         if len(keys) == 0:
-            raise KeyError(f"No input parameters given")
+            raise KeyError("No input parameters given")
         rtn = []
         if not isiterable(keys):
             return super().__getitem__(keys)

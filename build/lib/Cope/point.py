@@ -3,7 +3,7 @@ from typing import Union
 
 #* My Own Point Classes
 @dependsOnPackage('Point', 'Point')
-def findClosestXPoint(target, comparatorList, offsetIndex = 0):
+def findClosestXPoint(target, comparatorList, offsetIndex=0):
     """ I've forgotten what *exactly* this does. I think it finds the point in a list of
         points who's x point is closest to the target
     """
@@ -38,7 +38,7 @@ def getPointsAlongLine(p1, p2):
     return returnMe
 
 @dependsOnPackage('Point', 'Point')
-def rotatePoint(p, angle, pivotPoint, radians = False):
+def rotatePoint(p, angle, pivotPoint, radians=False):
     """ This rotates one point around another point a certain amount, and returns it's new position """
     if not radians:
         angle = math.radians(angle)

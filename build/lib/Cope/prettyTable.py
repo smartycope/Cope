@@ -1,6 +1,5 @@
 from .imports import dependsOnPackage
 
-################################### API Specific functions ###################################
 #* PrettyTable
 @dependsOnPackage('prettytable', 'PrettyTable')
 def quickTable(listOfLists, interpretAsRows=True, fieldNames=None, returnStr=False, sortByField:str=False, sortedReverse=False):

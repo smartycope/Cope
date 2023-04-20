@@ -1,4 +1,7 @@
-from .debugging import getMetaData, beingUsedAsDecorator, debugCount, getContext
+from .debugging import getMetaData, beingUsedAsDecorator, debugCount, getContext, printContext
+from .constants import HIDE_TODO, DISPLAY_PATH, DISPLAY_FILE, DISPLAY_FUNC
+from .misc import CommonResponses
+from .colors import coloredOutput, darken
 
 
 ################################### Decorators ###################################
@@ -10,6 +13,8 @@ def todo(featureName=None, enabled=True, blocking=False, limitCalls=True,
         Can also be used as a decorator (function, or class) to print a reminder
         and also throw a NotImplemented error on being called/constructed.
     """
+    if not __debug__: return
+
     metadata  = getMetaData(2)
     situation = beingUsedAsDecorator('todo', metadata)
     # First off, if we're limiting calls, check if we've already been called
@@ -31,9 +36,9 @@ def todo(featureName=None, enabled=True, blocking=False, limitCalls=True,
             debugCount()
             with coloredOutput(Colors.TODO):
                 print(getContext(metadata, True,
-                                      (showFunc or DISPLAY_FUNC) and not disableFunc,
-                                       showFile or DISPLAY_FILE,
-                                       showPath or DISPLAY_PATH), end='')
+                                (showFunc or DISPLAY_FUNC) and not disableFunc,
+                                showFile or DISPLAY_FILE,
+                                showPath or DISPLAY_PATH), end='')
                 # This is coincidental, but it works
                 print(f'TODO: {featureName.__name__ if disableFunc else featureName}')
             if blocking:
@@ -61,8 +66,9 @@ def todo(featureName=None, enabled=True, blocking=False, limitCalls=True,
     else:
         printTodo(False)
 
-
 def confidence(level, interpretAs:int=None):
+    if not __debug__: return
+
     def wrap(func):
         def innerWrap(*funcArgs, **funcKwArgs):
             definiteFailResponses = ()
@@ -129,26 +135,29 @@ def confidence(level, interpretAs:int=None):
                 elif level < 50:
                     possiblyFail()
             elif type(level) is str:
-                l = level.lower()
-                if l in CommonResponses.NO or l in CommonResponses.LOW_AMOUNT or l in probablyFailResponses:
+                _level = level.lower()
+                if _level in CommonResponses.NO or _level in CommonResponses.LOW_AMOUNT or _level in probablyFailResponses:
                     probablyFail()
-                elif l in CommonResponses.MAYBE or l in CommonResponses.SOME_AMOUNT or l in possiblyFailResponses:
+                elif _level in CommonResponses.MAYBE or _level in CommonResponses.SOME_AMOUNT or _level in possiblyFailResponses:
                     possiblyFail()
-                elif l in definiteFailResponses:
-                    definitelyFail()
-                elif l not in CommonResponses.YES and l not in CommonResponses.HIGH_AMOUNT and \
-                     l not in CommonResponses.NA  and l not in CommonResponses.MODERATE_AMOUNT:
+                elif _level in definiteFailResponses:
+                    definiteFail()
+                elif _level not in CommonResponses.YES and _level not in CommonResponses.HIGH_AMOUNT and \
+                     _level not in CommonResponses.NA  and _level not in CommonResponses.MODERATE_AMOUNT:
                     unknownInput()
             else:
                 unknownInput()
             return func(*funcArgs, **funcKwArgs)
         return innerWrap
     return wrap
+
 confident = confidence
 untested = confidence(21)
 tested = confidence(80)
 
 def depricated(why=''):
+    if not __debug__: return
+
     def wrap(func):
         def innerWrap(*funcArgs, **funcKwArgs):
             printContext(2, darken(80, Colors.DEPRICATED_WARNING))
