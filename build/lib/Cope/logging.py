@@ -1,7 +1,7 @@
 from .colors import LOG_COLOR, coloredOutput, WARN
-from .constants import LOG_LEVEL
-from .debugging import printContext
+from .debugging import print_context
 from enum import Enum
+from ._config import config
 
 class LogLevel(Enum):
     NONE = 0
@@ -9,11 +9,10 @@ class LogLevel(Enum):
     WARNINGS = 2
     ERRORS = 3
 
-
 def log(message, levelReq=LogLevel.LOGGING, color=LOG_COLOR):
     if not __debug__: return
-    if LOG_LEVEL >= levelReq.value:
-        printContext(2)
+    if config.verbosity >= levelReq.value:
+        print_context(2)
         with coloredOutput(color):
             print(message)
 

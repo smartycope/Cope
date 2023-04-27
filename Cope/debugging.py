@@ -186,7 +186,11 @@ def print_debug_count(leftAdjust=2, color: int=COUNT):
 # Doesn't work
 def get_varname_manually(var, full=True, calls=2, metadata=None):
     # Not quite sure why it's plus 2?...
-    line = get_metadata(calls=calls+2).code_context[0]
+    context = get_metadata(calls=calls+2).code_context
+    if context is None:
+        return '?'
+    else:
+        line = context[0]
     # Made with ezregex
     # optional(stuff) + 'debug(' + group(stuff + multiOptional('(' + optional(stuff) + ')')) + ')' + optional(stuff)
     match = re_match(r"(?:.+)?debug\((.+(?:\((?:.+)?\))*)\)(?:.+)?", line)

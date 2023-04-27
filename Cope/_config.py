@@ -10,7 +10,7 @@ class _ConfigSingleton:
     root_dir = None
 
     _debug_count = 0
-    verbosity = 1
+    verbosity = 0
 
     hide_todo = False
 

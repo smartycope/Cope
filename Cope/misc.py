@@ -329,7 +329,6 @@ def letterGrade(percentage):
     # else:
         # unreachableState()
 
-
 def cp(thing=None, rnd=3, show=False, notIterable=True, evalf=True):
     from sympy import latex
     from clipboard import copy
@@ -361,7 +360,6 @@ def cp(thing=None, rnd=3, show=False, notIterable=True, evalf=True):
                 print('stringing')
     return thing
 
-
 class CommonResponses:
     """ A collection of default responses for inputs. Make sure to use .lower() when testing agaisnt these.
         Note: There is some overlap between them, so testing order matters.
@@ -375,3 +373,14 @@ class CommonResponses:
     MODERATE_AMOUNT = ('fairly', 'somewhat', 'enough')
     SOME_AMOUNT = ('a little bit', 'a bit', 'a little', 'ish', 'not a lot', 'not a ton', 'some', 'mostly')
     LOW_AMOUNT  = ("not at all", 'not very', 'not much', 'low', 'none', 'none at all', 'not terribly')
+
+def inIPython(return_instance=True):
+    try:
+        import IPython
+    except ImportError:
+        return False
+    else:
+        if (instance := IPython.get_ipython()) is not None:
+            return instance if return_instance else True
+        else:
+            return False

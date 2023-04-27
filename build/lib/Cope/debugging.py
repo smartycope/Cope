@@ -1,33 +1,35 @@
-from .imports import ensureImported
-from .colors import coloredOutput, darken, resetColor, printColor, COUNT, CONTEXT, DEFAULT_DEBUG, WARN, ALERT, DEBUG_METADATA_DARKEN, DEBUG_TYPE_DARKEN, DEBUG_NAME_DARKEN, DEBUG_EQUALS, DEBUG_VALUE_DARKEN, NOTE_CALL, STACK_TRACE
-from re import search as re_search
-# import .colors as colors
-from ._None import _None
-from .constants import VERBOSE
-from os import get_terminal_size
-from os.path import basename
-from typing import Union
 from inspect import stack
+from os import get_terminal_size
+from os.path import basename, relpath
+from re import search as re_search
+from re import match as re_match
+from typing import Union
+
+# varnameImported = ensureImported('varname', ('VarnameRetrievingError', 'argname', 'nameof'))
+from varname import VarnameRetrievingError, argname, nameof
+
+# from .imports import ensureImported
+from ._config import config
+from ._None import _None
 # from . import colors
-# from varname import VarnameRetrievingError, argname, nameof
+from .colors import (ALERT, CONTEXT, COUNT, DEBUG_EQUALS,
+                     DEBUG_METADATA_DARKEN, DEBUG_NAME_DARKEN,
+                     DEBUG_TYPE_DARKEN, DEBUG_VALUE_DARKEN, DEFAULT_DEBUG,
+                     EMPTY, NOTE_CALL, STACK_TRACE, WARN, coloredOutput,
+                     darken, printColor, resetColor)
 
-DISPLAY_FILE = ''
-DISPLAY_FUNC = ''
-DISPLAY_LINK = ''
-DISPLAY_PATH = ''
-ROOT = ''
-
-varnameImported = ensureImported('varname', ('ImproperUseError', 'VarnameRetrievingError', 'argname', 'nameof'))
-_debugCount = 0
-
-DEBUGGING_DEBUG = False
 _repr = repr
+
+# def test():
+#     print('display_file:', config.display_file)
+#     print('display_func:', config.display_func)
+#     print('display_path:', config.display_path)
 
 def printArgs(*args, **kwargs):
     print('args:', args)
     print('kwargs:', kwargs)
 
-def getMetaData(calls=1):
+def get_metadata(calls=1):
     """ Gets the meta data of the line you're calling this function from.
         Calls is for how many function calls to look back from.
     """
@@ -37,15 +39,15 @@ def getMetaData(calls=1):
     except IndexError:
         return None
 
-def getLink(calls=0, full=False, customMetaData=None):
+def get_link(calls=0, full=False, customMetaData=None):
     if customMetaData is not None:
         d = customMetaData
     else:
-        d = getMetaData(calls+2)
+        d = get_metadata(calls+2)
 
-    printLink(d.filename, d.lineno, d.function if full else None)
+    print_link(d.filename, d.lineno, d.function if full else None)
 
-def getListStr(iterable: Union[tuple, list, set, dict], useMultiline:bool=True, limitToLine: bool=False, minItems: int=2, maxItems: int=50) -> str:
+def get_iterable_str(iterable: Union[tuple, list, set, dict], useMultiline:bool=True, limitToLine: bool=False, minItems: int=2, maxItems: int=50) -> str:
     """ "Cast" a tuple, list, set or dict to a string, automatically shorten
         it if it's long, and display how long it is.
 
@@ -124,7 +126,7 @@ def getListStr(iterable: Union[tuple, list, set, dict], useMultiline:bool=True, 
         return str(v) + f'(len={len(v)})'
     """
 
-def getTypename(var, addBraces=True):
+def get_typename(var, addBraces=True):
     def getUniqueType(item):
         returnMe = type(item).__name__
         while type(item) in (tuple, list, set):
@@ -159,7 +161,7 @@ def getTypename(var, addBraces=True):
         rtn = type(var).__name__
     return f'<{rtn}>' if addBraces else rtn
 
-def printLink(filename, lineNum, function=None):
+def print_link(filename, lineNum, function=None):
     """ Print a VSCodium clickable file and line number
         If function is specified, a full python error message style line is printed
     """
@@ -176,86 +178,117 @@ def printLink(filename, lineNum, function=None):
     resetColor()
     print('\033[0m', end='')
 
-def debugCount(leftAdjust=2, color: int=COUNT):
-    global _debugCount
-    _debugCount += 1
+def print_debug_count(leftAdjust=2, color: int=COUNT):
+    config._debug_count += 1
     with coloredOutput(color):
-        print(f'{str(_debugCount)+":":<{leftAdjust+2}}', end='')
+        print(f'{str(config._debug_count)+":":<{leftAdjust+2}}', end='')
 
-def manualGetVarName(var, full=True, calls=2, metadata=None):
-    try:
-        return re_search(r'(?<=debug\().+(?=,(\s)?[name color showFunc showFile showPath useRepr calls background limitToLine minItems maxItems stackTrace raiseError clr _repr trace bg throwError throw \) ])',
-                         metadata.code_context[0]).group()
-    except:
+# Doesn't work
+def get_varname_manually(var, full=True, calls=2, metadata=None):
+    # Not quite sure why it's plus 2?...
+    context = get_metadata(calls=calls+2).code_context
+    if context is None:
         return '?'
+    else:
+        line = context[0]
+    # Made with ezregex
+    # optional(stuff) + 'debug(' + group(stuff + multiOptional('(' + optional(stuff) + ')')) + ')' + optional(stuff)
+    match = re_match(r"(?:.+)?debug\((.+(?:\((?:.+)?\))*)\)(?:.+)?", line)
+    if match is None:
+        return '?'
+    else:
+        return match.groups()[0]
+    # ans.test('abc = lambda a: 6+ debug(parseColorParams((5, 5, 5)), name=8, clr=(a,b,c))\n')
+    return '?'
 
-def getVarName(var, full=True, calls=1, metadata=None):
+def get_varname(var, full=True, calls=1, metadata=None):
     try:
-        return argname('var', frame=calls+1)
+        rtn = argname('var', frame=calls+1)
     # It's a *likely* string literal
     except Exception as e:
         if type(var) is str:
-            return None
+            rtn = None
         else:
             try:
                 # print('var:', var)
                 # print('var type:', type(var))
-                return nameof(var, frame=calls+1)
-            except Exception as e:
-                if VERBOSE and DEBUGGING_DEBUG and not isinstance(var, Exception):
-                    raise e
+                rtn = nameof(var, frame=calls+1, vars_only=False)
+            except Exception as e2:
+                if config.verbosity >= 2 and not isinstance(var, Exception):
+                    raise e2
                 else:
-                    return manualGetVarName(var, full, calls+1, metadata)
+                    rtn = get_varname_manually(var, full, calls+1, metadata)
     except VarnameRetrievingError as e:
-        if VERBOSE:
+        if config.verbosity:
             raise e
         else:
-            return manualGetVarName(var, full, calls+1, metadata)
+            rtn = get_varname_manually(var, full, calls+1, metadata)
 
-def getAdjustedFilename(filename):
-    if ROOT:
-        return filename[len(ROOT)+1:]
+    try:
+        # It auto-adds ' around strings
+        if rtn == str(var) or rtn == f"'{var}'":
+            # If the value is the same as the name, it must be a literal
+            return None
+        else:
+            return rtn
+    except:
+        return rtn
+
+
+def get_adjusted_filename(filename):
+    # Default behavior
+    if config.root_dir is None:
+        return relpath(filename)
+    elif len(config.root_dir):
+        return relpath(filename, config.root_dir)
     else:
         return filename
 
-def getContext(metadata, useVscodeStyle, showFunc, showFile, showPath):
-    #* Set the stuff in the [] (the "context")
-    if metadata is not None:
-        if useVscodeStyle:
-            s = f'["{metadata.filename if showPath else getAdjustedFilename(metadata.filename)}", line {metadata.lineno}'
-            if showFunc:
-                if metadata.function.startswith('<'):
-                    s += ', in Global Scope'
-                else:
-                    s += f', in {metadata.function}()'
-            s += '] '
-            return s
+def get_context(metadata, showFunc, showFile, showPath) -> str:
+    """ Returns the stuff in the [] (the "context") """
+    if metadata is None:
+        return ''
+
+    # This logically must be true
+    if showPath:
+        showFile = True
+
+    s = '['
+    if showPath:
+        s += f'"{metadata.filename}", line {metadata.lineno}, in '
+    elif showFile:
+        s += f'"{get_adjusted_filename(metadata.filename)}", line {metadata.lineno}, in '
+    # We apparently don't want any context at all (for whatever reason)
+    elif not showFunc:
+        return ''
+
+    if showFunc:
+        if metadata.function.startswith('<'):
+            s += 'Global Scope'
         else:
-            context = str(metadata.lineno)
-            if showFunc:
-                if metadata.function.startswith('<'):
-                    context = 'Global Scope' + context
-                else:
-                    context = metadata.function + '()->' + context
-
-            if showFile:
-                context = (metadata.filename if showPath else basename(metadata.filename)) + '->' + context
-
-            return f'[{context}] '
+            s += f'{metadata.function}()'
     else:
-        return ' '
+        # Take out the comma and the space, if we're not using them
+        s = s[:-5]
+    s += '] '
+    return s
 
-def printStackTrace(calls, useVscodeStyle, showFunc, showFile, showPath):
+
+def print_stack_trace(calls, showFunc, showFile, showPath):
     for i in reversed(stack()[3:]):
-        print('\t', getContext(i, useVscodeStyle, showFunc, showFile, showPath))
+        print('\t', get_context(i, showFunc, showFile, showPath))
 
-def beingUsedAsDecorator(funcName, metadata=None, calls=1) -> 'Union[1, 2, 3, False]':
+def called_as_decorator(funcName, metadata=None, calls=1) -> 'Union[1, 2, 3, False]':
     """ Return 1 if being used as a function decorator, 2 if as a class decorator, 3 if not sure, and False if neither. """
     if metadata is None:
-        metadata = getMetaData(calls+1)
+        metadata = get_metadata(calls+1)
 
     # print(metadata.code_context)
-    line = metadata.code_context[0]
+    context = metadata.code_context
+    # I think this means we're using python from the command line
+    if context is None:
+        return False
+    line = context[0]
 
     if funcName not in line:
         if 'def ' in line:
@@ -269,20 +302,20 @@ def beingUsedAsDecorator(funcName, metadata=None, calls=1) -> 'Union[1, 2, 3, Fa
 
     return False
 
-def printContext(calls=1, color=CONTEXT, showFunc=True, showFile=True, showPath=True):
-    debugCount()
+def print_context(calls=1, color=CONTEXT, showFunc=True, showFile=True, showPath=True):
+    print_debug_count()
     with coloredOutput(color):
-        print(getContext(getMetaData(1 + calls), True,
-                               showFunc or DISPLAY_FUNC,
-                               showFile or DISPLAY_FILE,
-                               showPath or DISPLAY_PATH), end='')
+        print(get_context(get_metadata(1 + calls),
+                               showFunc or config.display_func,
+                               showFile or config.display_file,
+                               showPath or config.display_path), end='')
 
 def debug(var=_None,                # The variable to debug
           name: str=None,           # Don't try to get the name, use this one instead
           color=_None,              # A number (0-5), a 3 item tuple/list, or None
-          showFunc: bool=True,      # Expressly show what function we're called from
-          showFile: bool=True,      # Expressly show what file we're called from
-          showPath: bool=False,     # Show just the file name, or the full filepath
+          showFunc: bool=None,      # Expressly show what function we're called from
+          showFile: bool=None,      # Expressly show what file we're called from
+          showPath: bool=None,      # Show just the file name, or the full filepath
           useRepr: bool=False,      # Whether we should print the repr of var instead of str
           calls: int=1,             # Add extra calls
           active: bool=True,        # If this is false, don't do anything
@@ -328,102 +361,115 @@ def debug(var=_None,                # The variable to debug
             trace: Alias of stackTrace
             bg: Alias of background
     """
-    if not active or not __debug__:
-        return var
-
-    stackTrace = stackTrace or trace
-    useRepr = useRepr or repr
-    background = background or bg
-    throwError = throw or throwError or raiseError
-    useColor = (DEFAULT_DEBUG if clr is _None else clr) if color is _None else color
-
-    if maxItems < 0 or maxItems is None:
-        maxItems = 1000000
-
-    if isinstance(var, Warning):
-        useColor = WARN
-    elif isinstance(var, Exception):
-        useColor = ALERT
-
-    # +1 call because we don't want to get this line, but the one before it
-    metadata = getMetaData(calls+1)
-
-    #* First see if we're being called as a decorator
-    if callable(var) and beingUsedAsDecorator('debug', metadata):
-        def wrap(*args, **kwargs):
-            # +1 call because we don't want to get this line, but the one before it
-            metadata = getMetaData(2)
-
-            debugCount()
-
-            if stackTrace:
-                with coloredOutput(STACK_TRACE):
-                    printStackTrace(2, True, showFunc, showFile, showPath)
-
-            with coloredOutput(NOTE_CALL):
-                print(getContext(metadata, True, showFunc or DISPLAY_FUNC, showFile or DISPLAY_FILE, showPath or DISPLAY_PATH), end='')
-                print(f'{var.__name__}() called!')
-                # print(args)
-            return var(*args, **kwargs)
-
-        return wrap
-
-    debugCount()
-
-    if stackTrace:
-        with coloredOutput(STACK_TRACE):
-            printStackTrace(calls+1, True, showFunc, showFile, showPath)
-
-    #* Only print the "HERE! HERE!" message
-    if var is _None:
-        with coloredOutput(useColor if color is not _None else EMPTY, not background):
-            print(getContext(metadata, True, showFunc or DISPLAY_FUNC, showFile or DISPLAY_FILE, showPath or DISPLAY_PATH), end='')
-            if not metadata.function.startswith('<'):
-                print(f'{metadata.function}() called ', end='')
-            print('HERE!')
-        return
-
-    metadataColor = darken(DEBUG_METADATA_DARKEN,  useColor)
-    typeColor     = darken(DEBUG_TYPE_DARKEN,  useColor)
-    nameColor     = darken(DEBUG_NAME_DARKEN, useColor)
-    equalsColor   = DEBUG_EQUALS
-    valueColor    = darken(DEBUG_VALUE_DARKEN, useColor)
-    #* Print the standard line
-    with coloredOutput(metadataColor, not background):
-        print(getContext(metadata, True,
-                                showFunc or DISPLAY_FUNC,
-                                showFile or DISPLAY_FILE,
-                                showPath or DISPLAY_PATH), end='')
-
-    #* Seperate the variables into a tuple of (typeStr, varString)
-    varType = getTypename(var)
-    if useRepr:
-        varVal = _repr(var)
-    else:
-        if isinstance(var, (tuple, list, set, dict)):
-            varVal  = getListStr(var, limitToLine, minItems, maxItems)
-        else:
-            varVal  = str(var)
-
-    with coloredOutput(nameColor, not background):
-        #* Actually get the name
-        varName = getVarName(var, calls=calls, metadata=metadata) if name is None else name
-        # It's a string literal
-        if varName is None:
-            print(var)
+    try:
+        if not active or not __debug__:
             return var
 
-    with coloredOutput(typeColor, not background):
-        print(varType, end=' ')
-    with coloredOutput(nameColor, not background):
-        print(varName, end=' ')
-    with coloredOutput(equalsColor, not background):
-        print('=', end=' ')
-    with coloredOutput(valueColor, not background):
-        print(varVal)
+        stackTrace = stackTrace or trace
+        useRepr = useRepr or repr
+        background = background or bg
+        throwError = throw or throwError or raiseError
+        useColor = (DEFAULT_DEBUG if clr is _None else clr) if color is _None else color
 
-    if isinstance(var, Exception) and throwError:
-        raise var
+        if maxItems < 0 or maxItems is None:
+            maxItems = 1000000
 
-    # Does the same this as debugged used to
-    return var
+        if isinstance(var, Warning):
+            useColor = WARN
+        elif isinstance(var, Exception):
+            useColor = ALERT
+
+        # +1 call because we don't want to get this line, but the one before it
+        metadata = get_metadata(calls+1)
+
+        #* First see if we're being called as a decorator
+        if callable(var) and called_as_decorator('debug', metadata):
+            def wrap(*args, **kwargs):
+                # +1 call because we don't want to get this line, but the one before it
+                metadata = get_metadata(2)
+
+                print_debug_count()
+
+                if stackTrace:
+                    with coloredOutput(STACK_TRACE):
+                        print_stack_trace(2, showFunc, showFile, showPath)
+
+                with coloredOutput(NOTE_CALL):
+                    print(get_context(metadata,
+                        showFunc or config.display_func,
+                        showFile or config.display_file,
+                        showPath or config.display_path), end='')
+                    print(f'{var.__name__}() called!')
+                    # print(args)
+                return var(*args, **kwargs)
+
+            return wrap
+
+        print_debug_count()
+
+        if stackTrace:
+            with coloredOutput(STACK_TRACE):
+                print_stack_trace(calls+1, showFunc, showFile, showPath)
+
+        #* Only print the "HERE! HERE!" message
+        if var is _None:
+            with coloredOutput(useColor if color is not _None else EMPTY, not background):
+                print(get_context(metadata,
+                    showFunc or config.display_func,
+                    showFile or config.display_file,
+                    showPath or config.display_path), end='')
+                if not metadata.function.startswith('<'):
+                    print(f'{metadata.function}() called ', end='')
+                print('HERE!')
+            return
+
+        metadataColor = darken(DEBUG_METADATA_DARKEN,  useColor)
+        typeColor     = darken(DEBUG_TYPE_DARKEN,  useColor)
+        nameColor     = darken(DEBUG_NAME_DARKEN, useColor)
+        equalsColor   = DEBUG_EQUALS
+        valueColor    = darken(DEBUG_VALUE_DARKEN, useColor)
+        #* Print the standard line
+        with coloredOutput(metadataColor, not background):
+            print(get_context(metadata,
+                                    showFunc or config.display_func,
+                                    showFile or config.display_file,
+                                    showPath or config.display_path), end='')
+
+        #* Seperate the variables into a tuple of (typeStr, varString)
+        varType = get_typename(var)
+        if useRepr:
+            varVal = _repr(var)
+        else:
+            if isinstance(var, (tuple, list, set, dict)):
+                varVal  = get_iterable_str(var, limitToLine, minItems, maxItems)
+            else:
+                varVal  = str(var)
+
+        with coloredOutput(nameColor, not background):
+            #* Actually get the name
+            varName = get_varname(var, calls=calls, metadata=metadata) if name is None else name
+            # It's a string literal
+
+        if varName is None:
+            with coloredOutput(typeColor, not background):
+                print('<literal> ', end='')
+            with coloredOutput(nameColor, not background):
+                print(var)
+            return var
+
+        with coloredOutput(typeColor, not background):
+            print(varType, end=' ')
+        with coloredOutput(nameColor, not background):
+            print(varName, end=' ')
+        with coloredOutput(equalsColor, not background):
+            print('=', end=' ')
+        with coloredOutput(valueColor, not background):
+            print(varVal)
+
+        if isinstance(var, Exception) and throwError:
+            raise var
+
+        # Does the same this as debugged used to
+        return var
+    finally:
+        resetColor()

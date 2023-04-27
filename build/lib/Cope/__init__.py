@@ -1,6 +1,6 @@
 __version__ = '1.3.0'
-from .constants import *
 from .debugging import debug
+from .debugging import printArgs
 from .decorators import *
 from .imports import *
 from .geometry import *
@@ -12,6 +12,8 @@ from .timing import *
 from .prettyTable import *
 from .iterables import *
 from .func import *
-from .colors import *
+from . import colors
+from ._config import config as CopeConfig
+# from . import _config as confi
 from .errors import *
 # from .linalg import *

@@ -43,4 +43,5 @@ tests/test_logging.py
 tests/test_misc.py
 tests/test_point.py
 tests/test_psuedonym.py
+tests/test_replace_lines.py
 tests/test_timing.py
