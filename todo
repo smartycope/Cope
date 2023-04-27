@@ -1,6 +1,7 @@
 #! make confidence print the confidence level -- needs testing
 #! make that self-modifying function, both one that removes itself and one that adds a line above it -- needs more testing
 #! KeyShortcut could use more testing
+add a literal parameter to debug that puts quotes around the output
 # parseColors needs changed
 #? I think @debug and @todo are still failing periodically -- needs debugging
 #// Add a function that takes a parameter and a bunch of values and just checks to see if the parameter is one of those values, otherwise throws a type error with a preset message -- Done?

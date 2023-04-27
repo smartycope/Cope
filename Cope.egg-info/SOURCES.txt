@@ -7,6 +7,7 @@ setup.py
 Cope/Psuedonym.py
 Cope/_None.py
 Cope/__init__.py
+Cope/_config.py
 Cope/bak.py
 Cope/colors.py
 Cope/constants.py
@@ -28,6 +29,7 @@ Cope/timing.py
 Cope.egg-info/PKG-INFO
 Cope.egg-info/SOURCES.txt
 Cope.egg-info/dependency_links.txt
+Cope.egg-info/requires.txt
 Cope.egg-info/top_level.txt
 tests/test_colors.py
 tests/test_debugging.py

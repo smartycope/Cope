@@ -13,6 +13,8 @@ import sympy as sp
 @dependsOnPackage('clipboard', 'copy')
 @dependsOnPackage('sympy', ('Matrix', 'ImmutableMatrix', 'latex', 'sympify'))
 def matrix(string, rows=None, cols=None, cp=False, np=False, immutable=False, verbose=False):
+    # print('test')
+    # ensureImported('sympy', ('Matrix', 'ImmutableMatrix', 'latex', 'sympify'))
     # from sympy import latex
     # Parse params
     assert rows is None or cols is None

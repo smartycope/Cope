@@ -1,5 +1,6 @@
 from typing import Union, Iterable, Literal
 import importlib
+from varname import nameof
 
 
 def installLib(libs:Iterable):
@@ -56,11 +57,13 @@ def ensureImported(package:str, specificModules=[], as_=None,
             return False
     else:
         if len(specificModules):
-            for i in specificModules[:-1]:
-                globals()[i] = imported.__getattribute__(i)
-            globals()[as_ if as_ else specificModules[-1]] = imported.__getattribute__(specificModules[-1])
+            # print('returning imported')
+            # return imported
+            for i in specificModules:
+                _globals[i] = imported.__getattribute__(i)
+            # globals()[as_ if as_ else specificModules[-1]] = imported.__getattribute__(specificModules[-1])
         else:
-            globals()[as_ if as_ else package] = imported
+            _globals[as_ if as_ else package] = imported
     return True
 
 # todo
@@ -103,6 +106,7 @@ def dependsOnPackage(package:str, specificModules=[], as_=None,
             if ensureImported(package, specificModules, as_, if_unavailable, globals, locals, level):
                 return func(*funcArgs, **funcKwArgs)
             else:
+                print(f'Failed to import {package} for {nameof(func)}')
                 return None
         return innerWrap
     return wrap

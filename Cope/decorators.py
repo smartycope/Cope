@@ -1,7 +1,7 @@
-from .debugging import getMetaData, beingUsedAsDecorator, debugCount, getContext, printContext
-from .constants import HIDE_TODO, DISPLAY_PATH, DISPLAY_FILE, DISPLAY_FUNC
+from .debugging import get_metadata, called_as_decorator, print_debug_count, get_context, print_context
 from .misc import CommonResponses
 from .colors import coloredOutput, darken
+from ._config import config
 
 
 ################################### Decorators ###################################
@@ -15,8 +15,8 @@ def todo(featureName=None, enabled=True, blocking=False, limitCalls=True,
     """
     if not __debug__: return
 
-    metadata  = getMetaData(2)
-    situation = beingUsedAsDecorator('todo', metadata)
+    metadata  = get_metadata(2)
+    situation = called_as_decorator('todo', metadata)
     # First off, if we're limiting calls, check if we've already been called
     uniqueID = (metadata.lineno, metadata.filename)
     if limitCalls and uniqueID in __todoCalls:
@@ -32,13 +32,13 @@ def todo(featureName=None, enabled=True, blocking=False, limitCalls=True,
     #     return wrap
 
     def printTodo(disableFunc):
-        if not HIDE_TODO and enabled:
-            debugCount()
+        if not config.hide_todo and enabled:
+            print_debug_count()
             with coloredOutput(Colors.TODO):
-                print(getContext(metadata, True,
-                                (showFunc or DISPLAY_FUNC) and not disableFunc,
-                                showFile or DISPLAY_FILE,
-                                showPath or DISPLAY_PATH), end='')
+                print(get_context(metadata, True,
+                                (showFunc or config.display_func) and not disableFunc,
+                                showFile or config.display_file,
+                                showPath or config.display_path), end='')
                 # This is coincidental, but it works
                 print(f'TODO: {featureName.__name__ if disableFunc else featureName}')
             if blocking:
@@ -86,12 +86,12 @@ def confidence(level, interpretAs:int=None):
                 raise UserWarning(f"{func.__name__} is going to fail. {getPrettyLevel()}")
 
             def probablyFail():
-                printContext(3, darken(80, Colors.ALERT), showFunc=False)
+                print_context(3, darken(80, Colors.ALERT), showFunc=False)
                 with coloredOutput(Colors.ALERT):
                     print(f"Warning: {func.__name__} will probably fail. {getPrettyLevel()}")
 
             def possiblyFail():
-                printContext(3, darken(80, Colors.CONFIDENCE_WARNING), showFunc=False)
+                print_context(3, darken(80, Colors.CONFIDENCE_WARNING), showFunc=False)
                 with coloredOutput(Colors.CONFIDENCE_WARNING):
                     print(f"Warning: {func.__name__} might not work. {getPrettyLevel()}")
 
@@ -160,7 +160,7 @@ def depricated(why=''):
 
     def wrap(func):
         def innerWrap(*funcArgs, **funcKwArgs):
-            printContext(2, darken(80, Colors.DEPRICATED_WARNING))
+            print_context(2, darken(80, Colors.DEPRICATED_WARNING))
             with coloredOutput(Colors.DEPRICATED_WARNING):
                 print(f"{func.__name__} is Depricated{': ' if len(why) else '.'}{why}")
             return func(*funcArgs, **funcKwArgs)

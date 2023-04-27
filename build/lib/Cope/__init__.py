@@ -1,4 +1,4 @@
-__version__ = '1.2.1'
+__version__ = '1.3.0'
 from .constants import *
 from .debugging import debug
 from .decorators import *
@@ -15,4 +15,3 @@ from .func import *
 from .colors import *
 from .errors import *
 # from .linalg import *
-from . import linalg

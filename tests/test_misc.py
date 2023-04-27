@@ -55,15 +55,14 @@ def test_replaceLine():
     # replaceLine("\t\t# This Line has been replaced! 2")
     # replaceLine("# This Line has been replaced! 3")
 
-
 def test_fancyComment():
-    fancyComment()
-    fancyComment(char='~')
-    fancyComment(lineLimit=30)
-    fancyComment('Seperator!')
-    fancyComment('Seperator!', '~')
-    fancyComment('Seperator!', '~', '{')
-    fancyComment('Seperator!', '~', '{', 50)
+    comment()
+    comment(char='~')
+    comment(lineLimit=30)
+    comment('Seperator!')
+    comment('Seperator!', '~')
+    comment('Seperator!', '~', '{')
+    comment('Seperator!', '~', '{', 50)
 
     # fancyComment()
     # fancyComment(char='~')
@@ -72,7 +71,6 @@ def test_fancyComment():
     # fancyComment('Seperator!', '~')
     # fancyComment('Seperator!', '~', '{')
     # fancyComment('Seperator!', '~', '{', 50)
-
 
 def test_confirm():
     confirm()

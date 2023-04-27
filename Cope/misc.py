@@ -1,13 +1,13 @@
 # from .decorators import todo, confidence
 from .imports import dependsOnPackage
-from .debugging import getVarName, beingUsedAsDecorator, debug, getMetaData
+from .debugging import get_varname, called_as_decorator, debug, get_metadata
 from .colors import ERROR
 import re
 import subprocess
 from os.path import join
 from random import randint
 import sys
-
+from math import floor
 from unicodedata import normalize
 
 def available(*args, fail_if_none=True):
@@ -181,8 +181,8 @@ def insert_newlines(string, max_line_length):
     return result
 
 def assertValue(param, *values, blocking=True):
-    paramName = getVarName(param)
-    if not beingUsedAsDecorator('assertValue'):
+    paramName = get_varname(param)
+    if not called_as_decorator('assertValue'):
         if param not in values:
             err = TypeError(f"Invalid value for {paramName}, must be one of: {values}")
             if blocking:
@@ -192,13 +192,12 @@ def assertValue(param, *values, blocking=True):
     else:
         print('TODO: AssertValue usage as a decorator')
 
-# @confidence(72)
-def replaceLine(line, offset=0, keepTabs=True, convertTabs=True, additionalCalls=0):
+def replaceLine(line, offset=0, keepTabs=True, convertTabs=True, calls=0):
     """ Replaces the line of code this is called from with the give line parameter.
-        This is probably a very bad idea to actually use.
-        Don't forget to add tabs! Newline is already taken care of (unless you want to add more).
+        This is a very bad idea and you should not use it
+        Automatically adds a newline to the end, but does not automatically add tabs.
     """
-    meta = getMetaData(calls=2 + additionalCalls)
+    meta = get_metadata(calls=calls+2)
 
     with open(meta.filename, 'r') as f:
         file = f.readlines()
@@ -222,11 +221,30 @@ def replaceLine(line, offset=0, keepTabs=True, convertTabs=True, additionalCalls
     with open(meta.filename, 'w') as f:
         f.writelines(file)
 
-# @confidence(85)
-def fancyComment(title='', char='#', endChar='#', lineLimit=80):
-    """ Replaces the call with a nicely formatted comment line """
-    halfLen = ((lineLimit / len(char)) - len(title) - 1 - (2 if len(title) else 0) - len(endChar)) / 2
-    seperateChar = ' ' if len(title) else ''
+def comment(comment='', char='#', start='', end='', line_limit=80):
+    """ Replaces the call with a nicely formatted comment line next time the line is run
+        CAVIAT: This is a terrible, terrible function that you should NOT use.
+                I'm pretty confident it won't overwrite your source code.
+                And it's surprisingly useful.
+                But still, use at your own risk.
+    """
+    if not len(char):
+        replaceLine('# ' + comment, calls=1)
+        return
+    if not len(start):
+        start = char
+    if not len(end):
+        end = char
+
+    # Calculate half the distance - comment
+    half = (((line_limit // len(char)) - len(comment) - 1 - (2 if len(comment) else 0) - len(end)) // 2) - 1
+    # We want the comment to be nicely seperated
+    seperateChar = ' ' if len(comment) else ''
+    # Add them all together
+    c = '#' + start + (char * half) + seperateChar + comment + seperateChar + (char * half)
+    # If it doesn't quite reach the max number of characters, make sure it does
+    c += ((line_limit - len(c) - len(end)) // len(char)) * char
+    replaceLine(c + end, calls=1)
 
 def confirm(prompt='Continue?', returnIfInvalid=False, failedFunc=lambda: None, includeYN=True, quit=False, quitMsg='Okay then, exiting...'):
     response = input(prompt + (" (y/N): " if includeYN else '')).lower()

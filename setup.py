@@ -57,6 +57,4 @@ kwargs = {
 
 ###################### END USER OVERRIDES ####################
 
-setup(**kwargs,
-    requires=['varname', 'sympy'],
-)
+setup(**kwargs, long_description_content_type='text/markdown')

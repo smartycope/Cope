@@ -11,31 +11,33 @@ from Cope.debugging import *
 from Cope.colors import parseColorParams
 
 # def test_getMetaData():
-getMetaData()
+# print('testing get_metadata')
+# print(get_metadata())
 
 # def test__debugGetLink():
-getLink()
+# print('testing get_link')
+# print(get_link())
 
 # def test__debugGetListStr():
-getListStr([1, 2, 3])
+# get_iterable_str([1, 2, 3])
 
 # def test__debugGetTypename():
-getTypename('test string literal')
+# get_typename('test string literal')
 
 # def test__debugPrintLink():
-printLink('testFile.py', 42)
+# print_link('testFile.py', 42)
 
 # def test__printDebugCount():
-debugCount()
+# print_debug_count()
 
 # def test__debugManualGetVarName():
-manualGetVarName(var)
+# get_varname_manually(var)
 
 # def test__debugGetVarName():
-getVarName(var)
+# get_varname(var)
 
 # def test__debugGetAdjustedFilename():
-getAdjustedFilename('testFile.py')
+# get_adjusted_filename('testFile.py')
 
 # def test__debugGetContext():
 # getContext()
@@ -44,10 +46,10 @@ getAdjustedFilename('testFile.py')
 # printStackTrace()
 
 # def test__debugBeingUsedAsDecorator():
-beingUsedAsDecorator('testFunc')
+# called_as_decorator('testFunc')
 
 # def test_printContext():
-printContext()
+# print_context()
 
 # def test_debug():
 debug()
@@ -60,8 +62,10 @@ def testFunc():
 debug(a)
 debug(a, 'apple')
 
-debug('test3')
+debug("test3")
 debug(s)
+debug(6)
+debug(None)
 
 debug(j)
 debug()
@@ -71,7 +75,7 @@ debug(testFunc)
 foo = debug(a)
 debug(foo)
 
-debug(parseColorParams((5, 5, 5)) )
+debug(parseColorParams((5, 5, 5)))
 
 debug(SyntaxError('Not an error'))
 try:
@@ -121,3 +125,15 @@ debug(())
 debug([])
 debug({})
 debug(set())
+
+
+# test()
+
+# CopeConfig.display_file=False
+CopeConfig.display_func=False
+# CopeConfig.display_path=True
+# CopeConfig.root_dir = './.pytest_cache'
+
+debug()
+
+# test()
