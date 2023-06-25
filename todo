@@ -21,6 +21,7 @@ add a literal parameter to debug that puts quotes around the output
 #? The manual debug regex to parse a line doesn't really work (is it even possible to do that with regex?)
 #? ROOT doesn't work (I suspect DIR doesn't either)
 #todo Add a bunch of Errors and warnings you can raise (like depricationWarning/error, and some others)
+# Add replace with and version parameters to depricated
 #todo maybe write a warn function, and probably just have it call log with parameters
 #? Shift (JUST FREAKING SHIFT) doesn't work with KeyShortcut. No clue why. Debug eventually.
 #? Add the + operator to keys so you can add keys to make a KeyShortcut (figure out prototyping)
@@ -50,3 +51,6 @@ add a literal parameter to debug that puts quotes around the output
 #todo tested and untested don't give the right metadata (cause they're called somewhere else)
 #todo finish MultiDict
 # Make a list class or iterator that iterates in overlapping chunks (a & b, then b & c, then c & d, etc)
+implement rich.inspect into debug() somehow
+fix up the todo list
+convert all colors to use rich

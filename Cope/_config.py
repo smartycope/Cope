@@ -1,5 +1,7 @@
 from pathlib import Path
 from typing import Union, SupportsInt
+from rich.console import Console
+from rich.theme import Theme
 
 class _ConfigSingleton:
     # Override the debug parameters and display the file/function for each debug call
@@ -13,5 +15,9 @@ class _ConfigSingleton:
     verbosity = 0
 
     hide_todo = False
+
+    theme = Theme.read(Path(__file__).parent/'style.cfg')
+    console = Console(theme=theme)
+
 
 config = _ConfigSingleton()

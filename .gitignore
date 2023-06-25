@@ -4,3 +4,5 @@
 build/
 Cope.egg-info
 .Cope.py.bak
+*cpython*
+dist/

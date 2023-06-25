@@ -1,7 +1,4 @@
 [metadata]
-name = 'Cope'
-version = '1.3.0'
-description = 'A bunch of generic functions and classes useful in multiple projects'
 author = 'Copeland Carter'
 author_email = 'smartycope@gmail.com'
 license = 'MIT/Apache-2.0'
@@ -11,17 +8,19 @@ url = 'https://github.com/smartycope/Cope'
 python_version = ['3.10', '3.11', '3.6', '3.7', '3.8', 'pypy', 'pypy3']
 
 [build-system]
-requires = ['setuptools', 'wheel']
+requires = ['setuptools', 'wheel', 'hatchling']
+build-backend = "hatchling.build"
 
 [tool.hatch.commands]
 prerelease = 'hatch build'
 
 [project]
 name = 'Cope'
-version = '1.3.0'
+version = '1.4.1'
 description = 'A bunch of generic functions and classes useful in multiple projects'
 dependencies = [
     'varname',
+    'rich',
 ]
 
 [project.optional-dependencies]

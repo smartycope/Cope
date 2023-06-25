@@ -3,8 +3,6 @@ from .misc import CommonResponses
 from .colors import coloredOutput, darken
 from ._config import config
 
-
-################################### Decorators ###################################
 __todoCalls = set()
 def todo(featureName=None, enabled=True, blocking=False, limitCalls=True,
          showFunc=True, showFile=True, showPath=False):

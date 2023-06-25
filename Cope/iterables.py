@@ -136,10 +136,16 @@ def addDicts(*dicts):
         rtn.update(d)
     return rtn
 
+def str_iter(iter):
+    return [str(i) for i in iter]
+
 # @todo
 class LoopingList(list):
     """ It's a list, that, get this, loops!
     """
+    def __init__(self):
+        raise NotImplementedError('This class doesnt work yet')
+
     def __getitem__(self, index):
         if index > self.__len__():
             return super().__getitem__(index % self.__len__())
