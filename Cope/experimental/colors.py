@@ -1,6 +1,6 @@
 import math
 # import color-names
-from typing import Tuple
+from typing import Tuple, Literal
 
 def distinctColor(n: int) -> tuple:
     # First, ensure if it's 0, we return black

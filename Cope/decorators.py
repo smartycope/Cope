@@ -2,7 +2,7 @@
 # from .misc import CommonResponses
 # from .colors import coloredOutput, darken
 # from ._config import config
-
+'''
 __todoCalls = set()
 
 
@@ -160,7 +160,6 @@ confident = confidence
 untested = confidence(21)
 tested = confidence(80)
 
-
 def depricated(why=''):
     if not __debug__:
         return
@@ -173,7 +172,7 @@ def depricated(why=''):
             return func(*funcArgs, **funcKwArgs)
         return innerWrap
     return wrap
-
+'''
 
 def reprise(obj: type, *args, **kwargs) -> type:
     """
