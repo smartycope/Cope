@@ -30,12 +30,11 @@ kwargs = {
     'maintainer': 'Copeland Carter',
     'maintainer_email': 'smartycope@gmail.com',
     'url': 'https://github.com/smartycope/Cope',
-    'license': 'MIT/Apache-2.0',
+    'license': 'MIT',
     'classifiers': [
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
-        'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3.10',
@@ -57,4 +56,10 @@ kwargs = {
 
 ###################### END USER OVERRIDES ####################
 
-setup(**kwargs, long_description_content_type='text/markdown')
+
+setup(
+    **kwargs,
+    long_description=readme,
+    long_description_content_type='text/markdown',
+    # url='',
+)

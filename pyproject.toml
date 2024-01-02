@@ -1,7 +1,7 @@
 [metadata]
 author = 'Copeland Carter'
 author_email = 'smartycope@gmail.com'
-license = 'MIT/Apache-2.0'
+license = 'MIT'
 url = 'https://github.com/smartycope/Cope'
 
 [requires]
