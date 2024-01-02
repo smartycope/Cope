@@ -1,38 +1,41 @@
 from Cope import *
 
-# line3
-# replaceLine('teeeeeeeeeeeeeeest')
-# line 5
+def test_comment():
+    # line 4
+teeeeeeeeeeeeeeest
+    # line 6
 
-# comment('commeeennnttttt')
-# comment('commeeennnttttt')
+############################### commeeennnttttt ################################
+############################### commeeennnttttt ################################
 
-# # comment('')
-# comment('')
+    # comment('')
+################################################################################
 
-# # comment(' ')
-# comment(' ')
+    # comment(' ')
+######################################   #######################################
 
-# # comment('comemnt', char='~')
-# comment('comemnt', char='~')
+    # comment('comemnt', char='~')
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ comemnt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# # comment('comment', start=' ')
-# comment('comment', start=' ')
+    # comment('comment', start=' ')
+# ################################# comment ####################################
 
-# # comment('comment', start='!', end='!')
-# comment('comment', start='!', end='!')
+    # comment('comment', start='!', end='!')
+#!################################# comment ###################################!
 
-# # comment('comment', line_limit=60)
-# comment('comment', line_limit=60)
+    # comment('comment', line_limit=60)
+######################### comment ##########################
 
-# # comment('commant', char='')
-# comment('commant', char='')
+    # comment('commant', char='')
+# commant
 
-# # comment('commant', char='-~')
-# comment('commant', char='-~')
+    # comment('commant', char='-~')
+#-~-~-~-~-~-~-~-~-~-~-~-~-~-~ commant -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
 
-# # comment('commant', start='$-$')
-# comment('commant', start='$-$')
+    # comment('commant', start='$-$')
+#$-$################################# commant ##################################
 
-# # comment('commant', end='$-$')
-# comment('commant', end='$-$')
+    # comment('commant', end='$-$')
+################################## commant ##################################$-$
+
+test_comment()

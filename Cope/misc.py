@@ -1,16 +1,7 @@
-# from .decorators import todo, confidence
-# from .imports import dependsOnPackage
-# from .debugging import get_varname, called_as_decorator, debug, get_metadata
-# from .colors import ERROR
 import re
-import subprocess
-from os.path import join
 from random import randint
-import sys
-# from math import floor
-from unicodedata import normalize
 from typing import *
-from itertools import count
+from .debugging import get_metadata
 
 def available(*args, null=None) -> list:
     """ Of the parameters passed, returns the parameters which are not `null` """
@@ -157,9 +148,10 @@ def replaceLine(line, offset=0, keepTabs=True, convertTabs=True, calls=0):
     with open(meta.filename, 'w') as f:
         f.writelines(file)
 
+# TODO: make this respect tabs at the beginning of a line
 def comment(comment='', char='#', start='', end='', line_limit=80):
     """ Replaces the call with a nicely formatted comment line next time the line is run
-        CAVIAT: This is a terrible, terrible function that you should NOT use.
+        NOTE: This is a terrible, terrible function that you should NOT use.
                 I'm pretty confident it won't overwrite your source code.
                 And it's surprisingly useful.
                 But still, use at your own risk.
