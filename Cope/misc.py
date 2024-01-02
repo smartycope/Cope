@@ -1,6 +1,6 @@
 # from .decorators import todo, confidence
-from .imports import dependsOnPackage
-from .debugging import get_varname, called_as_decorator, debug, get_metadata
+# from .imports import dependsOnPackage
+# from .debugging import get_varname, called_as_decorator, debug, get_metadata
 # from .colors import ERROR
 import re
 import subprocess
@@ -9,51 +9,106 @@ from random import randint
 import sys
 # from math import floor
 from unicodedata import normalize
+from typing import *
+from itertools import count
 
-# @todo('Make this use piping and return the command output', False)
-def runCmd(args):
-    """ Run a command and terminate if it fails. """
-    try:
-        ec = subprocess.call(' '.join(args), shell=True)
-    except OSError as e:
-        print("Execution failed:", e, file=sys.stderr)
-        ec = 1
-    if ec:
-        sys.exit(ec)
+def available(*args, null=None) -> list:
+    """ Of the parameters passed, returns the parameters which are not `null` """
+    return list(filter(lambda i: i != null, args))
 
-def center(string):
-    """ Centers a string for printing in the terminal """
-    from os import get_terminal_size
-    for _ in range(int((get_terminal_size().columns - len(string)) / 2)): string = ' ' + string
-    return string
+# TODO: Tests
+def only1(*args, null=None) -> bool:
+    """ Returns true only if there is only 1 non-`null` parameter """
+    return len(available(*args, null=null)) == 1
 
-def isPowerOf2(x):
+# TODO: Tests
+def interpret_percentage(percentage:Union[int, float]) -> float:
+    if percentage > 1:
+        return percentage / 100
+    return percentage
+
+# TODO: Tests
+def percent(percentage:Union[int, float]):
+    ''' Usage:
+        if (percent(50)):
+            <code that has a 50% chance of running>
+        NOTE: .5 works as well as 50
+    '''
+    return randint(1, 100) < interpret_percentage(percentage)*100
+
+# TODO: Tests
+def randbool() -> bool:
+    """ Returns, randomly, either True or False """
+    return bool(randint(0, 1))
+
+# TODO: Tests
+def close_enough(a, b, tolerance):
+    """ Returns True if a is within tolerance range of b """
+    return a <= b + tolerance and a >= b - tolerance
+
+# TODO: Tests
+def closest_index(target:SupportsInt, compare:Iterable[SupportsInt], index=False) -> int:
+    """ Finds the value in `compare` that is closest to `target`.
+        Returns the index (if `index` is True), or the value.
+        Uses the - operator.
+    """
+    val = min(compare, key=lambda i: abs(target - i))
+    if index:
+        return compare.index(val)
+    return val
+
+# TODO: Tests
+def furthest_index(target:SupportsInt, compare:Iterable[SupportsInt], index=False) -> int:
+    """ Finds the value in `compare` that is furthest from `target`.
+        Returns the index (if `index` is True), or the value.
+        Uses the - operator.
+    """
+    val = max(compare, key=lambda i: abs(target - i))
+    if index:
+        return compare.index(val)
+    return val
+
+# TODO: Tests
+def isPowerOf2(x:int) -> bool:
     """ Returns true if x is a power of 2 """
     return (x != 0) and ((x & (x - 1)) == 0)
 
-def isBetween(val, start, end, beginInclusive=False, endInclusive=False):
-    """ Returns true if val is between start and end """
-    return (val >= start if beginInclusive else val > start) and \
-           (val <= end   if endInclusive   else val < end)
+# TODO: Tests
+def between(target, start, end, left_open=False, right_open=False) -> bool:
+    """ Returns True if `target` is between start and end """
+    return (target >= start if left_open  else target > start) and \
+           (target <= end   if right_open else target < end)
 
-def insertChar(string, index, char):
-    """ Returns the string with char inserted into string at index. Freaking python string are immutable. """
-    return string[:index] + char + string[index+1:]
+# TODO: Tests
+def insert_str(string:str, index:int, inserted:str) -> str:
+    """ Returns the string with `inserted` inserted into `string` at `index` """
+    return string[:index] + inserted + string[index+1:]
 
+# TODO: Tests
 def constrain(val, low, high):
-    """ Constrains val to be within low and high """
+    """ Constrains `val` to be within `low` and `high` """
     return min(high, max(low, val))
 
-def translate(value, fromStart, fromEnd, toStart, toEnd):
-    return ((abs(value - fromStart) / abs(fromEnd - fromStart)) * abs(toEnd - toStart)) + toStart
+# TODO: Tests
+def translate(
+    value:SupportsAbs,
+    from_start:SupportsAbs, from_end:SupportsAbs,
+    to_start:SupportsAbs,   to_end:SupportsAbs
+    ) -> SupportsAbs:
+    """ Proportionally maps `value` from being within the `from` range to the `to` range """
+    return ((abs(value - from_start) / abs(from_end - from_start)) * abs(to_end - to_start)) + toStart
 
-def frange(start, stop, skip=1.0, accuracy=10000000000000000):
-    return [x / accuracy for x in range(int(start*accuracy), int(stop*accuracy), int(skip*accuracy))]
+# TODO: Tests
+def frange(start:float, stop:float, skip:float=1.0, accuracy:int=10000000000000000):
+    # return (x / accuracy for x in range(int(start*accuracy), int(stop*accuracy), int(skip*accuracy)))
+    for x in range(int(start*accuracy), int(stop*accuracy), int(skip*accuracy)):
+        yield x / accuracy
 
-def portFilename(filename):
-    return join(*filename.split('/'))
-
-def insert_newlines(string, max_line_length):
+# TODO: Tests
+def insert_newlines(string:str, max_line_length:int) -> str:
+    """ Inserts newline characters into `string` in order to keep `string` under `max_line_length`
+        characters long, while not inserting a newline in the middle of a word
+    """
     # split the string into a list of words
     words = string.split()
     # initialize the result as an empty string
@@ -72,18 +127,6 @@ def insert_newlines(string, max_line_length):
         # add the current line to the result
         result += current_line
     return result
-
-def assertValue(param, *values, blocking=True):
-    paramName = get_varname(param)
-    if not called_as_decorator('assertValue'):
-        if param not in values:
-            err = TypeError(f"Invalid value for {paramName}, must be one of: {values}")
-            if blocking:
-                raise err
-            else:
-                debug(err)
-    else:
-        print('TODO: AssertValue usage as a decorator')
 
 def replaceLine(line, offset=0, keepTabs=True, convertTabs=True, calls=0):
     """ Replaces the line of code this is called from with the give line parameter.
@@ -139,47 +182,42 @@ def comment(comment='', char='#', start='', end='', line_limit=80):
     c += ((line_limit - len(c) - len(end)) // len(char)) * char
     replaceLine(c + end, calls=1)
 
-def confirm(prompt='Continue?', returnIfInvalid=False, failedFunc=lambda: None, includeYN=True, quit=False, quitMsg='Okay then, exiting...'):
-    response = input(prompt + (" (y/N): " if includeYN else '')).lower()
+# TODO: Tests
+def confirm(
+    prompt:str='Continue?',
+    quit:bool=False,
+    quit_msg:str='Exiting...',
+    return_if_invalid:bool=False,
+    include_YN:bool=True,
+    ) -> bool:
+    """ Promt the user to confirm via terminal whether to continue or not. If given an invalid response,
+        it will continue to ask, unless `return_if_invalid` is set to True.
+    """
+    response = input(prompt + (" (y/N): " if include_YN else '')).lower()
     if response in ('y', 'yes'):
         return True
     elif response in ('n', 'no'):
         if quit:
-            print(quitMsg)
+            print(quit_msg)
             exit(1)
-        else:
-            failedFunc()
         return False
     else:
         print('Invalid Input')
-        if returnIfInvalid:
+        if return_if_invalid:
             return None
         else:
-            confirm(prompt, failedFunc=failedFunc, includeYN=includeYN, quit=quit, quitMsg=quitMsg)
+            confirm(prompt, include_YN=include_YN, quit=quit, quit_msg=quit_msg)
 
-def slugify(value, allow_unicode=False, allow_space=False, convert_case=True):
-    """
-    Taken from https://github.com/django/django/blob/master/django/utils/text.py
-    Convert to ASCII if 'allow_unicode' is False. Convert spaces or repeated
-    dashes to single dashes. Remove characters that aren't alphanumerics,
-    underscores, or hyphens. Convert to lowercase. Also strip leading and
-    trailing whitespace, dashes, and underscores.
-    """
-    from unicodedata import normalize
-    value = str(value)
-    if allow_unicode:
-        value = normalize('NFKC', value)
-    else:
-        value = normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
-    value = re.sub(r'[^\w\s-]', '', value.lower() if convert_case else value)
-    return re.sub(r'[-\n\r\t\v\f]+' if allow_space else r'[-\s]+', '-', value).strip('-_')
-
-def catFile(f):
+# TODO: Tests
+def cat_file(f:str) -> str:
+    """ Simply return whatever is in the given file path. Just like the Unix `cat` command. """
     with open(f, 'r') as f:
         return f.read()
 
-# No, English does not make any sense.
-def umpteenthName(i:int) -> "1st, 2nd, 3rd, etc.":
+# TODO: Tests
+def umpteenth(i:int) -> str:
+    """ Return the string name, i.e. 1st, 2nd, 3rd, etc. for the given integer """
+    # Wow, English does not make any sense.
     i = str(i)
     if i[-1] == '1' and (i != '11'):
         return i + 'st'
@@ -190,10 +228,11 @@ def umpteenthName(i:int) -> "1st, 2nd, 3rd, etc.":
     else:
         return i + 'th'
 
-def letterGrade(percentage):
+# TODO: Tests
+def grade(percentage:Union[float, int]) -> str:
+    """ This returns the letter grade given, based on the percentage you have in a class """
     # If we're given a decimal instead of a percentage
-    if percentage < 1:
-        percentage *= 100
+    percentage = interpret_percentage(percentage)
 
     if percentage < 61:
         return 'F'
@@ -219,16 +258,22 @@ def letterGrade(percentage):
         return 'A-'
     elif percentage < 100:
         return 'A'
-    # else:
-        # unreachableState()
 
-def cp(thing=None, rnd=3, show=False, notIterable=True, evalf=True):
-    from sympy import latex
+# TODO
+def sigfigs(num:float, sigfigs=3) -> str:
+    """ After all the STEM classes I've taken, I *still* don't understand how sigfigs work. """
+    NotImplemented
+
+# TODO: Tests, and make this use sigfigs instead
+def cp(thing=None, rnd:int=3, show=False, not_iterable=True, evalf=True):
+    """ Quick shortcut for notebooks for copying things to the clipboard in an easy way"""
+    from sympy import latex, Basic, Float
     from clipboard import copy
+
     if thing is None:
         thing = _
 
-    if notIterable:
+    if not_iterable:
             thing = ensureNotIterable(thing)
 
     if isinstance(thing, Basic) and not isinstance(thing, Float) and not evalf:
@@ -253,6 +298,7 @@ def cp(thing=None, rnd=3, show=False, notIterable=True, evalf=True):
                 print('stringing')
     return thing
 
+
 class CommonResponses:
     """ A collection of default responses for inputs. Make sure to use .lower() when testing agaisnt these.
         Note: There is some overlap between them, so testing order matters.
@@ -267,7 +313,8 @@ class CommonResponses:
     SOME_AMOUNT = ('a little bit', 'a bit', 'a little', 'ish', 'not a lot', 'not a ton', 'some', 'mostly')
     LOW_AMOUNT  = ("not at all", 'not very', 'not much', 'low', 'none', 'none at all', 'not terribly')
 
-def inIPython(return_instance=True):
+# TODO: Tests... somehow?
+def in_IPython(return_instance=True):
     try:
         import IPython
     except ImportError:

@@ -376,8 +376,8 @@ def debug(
     elif isinstance(var, Exception):
         useColor = 'error'
 
-    if maxItems < 0 or maxItems is None:
-        maxItems = 1000000
+    # if maxItems < 0 or maxItems is None:
+        # maxItems = 1000000
 
     # +1 call because we don't want to get this line, but the one before it
     metadata = get_metadata(calls+1)

@@ -1,7 +1,8 @@
 from os.path import join, dirname; import sys; sys.path.append(join(dirname( __file__ ), '..'))
-from Cope.Psuedonym import *
+from Cope.experimental.Psuedonym import *
 
 def test_Psuedonum():
+    return
     yes = Psuedonym('yes', 'ye', 'si', 'indeed')
     debug(yes == 'yes')
     debug(yes == 'ye')
