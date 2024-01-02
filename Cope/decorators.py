@@ -1,19 +1,30 @@
-from .debugging import get_metadata, called_as_decorator, print_debug_count, get_context, print_context
-from .misc import CommonResponses
-from .colors import coloredOutput, darken
-from ._config import config
+# from .debugging import get_metadata, called_as_decorator, print_debug_count, get_context, print_context
+# from .misc import CommonResponses
+# from .colors import coloredOutput, darken
+# from ._config import config
 
 __todoCalls = set()
-def todo(featureName=None, enabled=True, blocking=False, limitCalls=True,
-         showFunc=True, showFile=True, showPath=False):
-    """ Leave reminders for yourself to finish parts of your code.
-        Can be manually turned on or off with hideAllTodos(bool).
-        Can also be used as a decorator (function, or class) to print a reminder
-        and also throw a NotImplemented error on being called/constructed.
-    """
-    if not __debug__: return
 
-    metadata  = get_metadata(2)
+
+def todo(
+    featureName=None,
+    enabled=True,
+    blocking=False,
+    limitCalls=True,
+    showFunc=True,
+    showFile=True,
+    showPath=False
+):
+    # Can be manually turned on or off with hideAllTodos(bool).
+    """ Leave reminders for yourself to finish parts of your code.
+        Can also be used as a decorator (for functions or classes) to print a reminder and optionally
+        throw a NotImplemented error on being called/constructed.
+    """
+
+    if not __debug__:
+        return
+
+    metadata = get_metadata(2)
     situation = called_as_decorator('todo', metadata)
     # First off, if we're limiting calls, check if we've already been called
     uniqueID = (metadata.lineno, metadata.filename)
@@ -22,21 +33,14 @@ def todo(featureName=None, enabled=True, blocking=False, limitCalls=True,
     else:
         __todoCalls.add(uniqueID)
 
-    # def decorator(*decoratorArgs, **decoratorKwArgs):
-    #     def wrap(func):
-    #         def innerWrap(*funcArgs, **funcKwArgs):
-    #             return func(*funcArgs, **funcKwArgs)
-    #         return innerWrap
-    #     return wrap
-
     def printTodo(disableFunc):
         if not config.hide_todo and enabled:
             print_debug_count()
             with coloredOutput(Colors.TODO):
                 print(get_context(metadata, True,
-                                (showFunc or config.display_func) and not disableFunc,
-                                showFile or config.display_file,
-                                showPath or config.display_path), end='')
+                                  (showFunc or config.display_func) and not disableFunc,
+                                  showFile or config.display_file,
+                                  showPath or config.display_path), end='')
                 # This is coincidental, but it works
                 print(f'TODO: {featureName.__name__ if disableFunc else featureName}')
             if blocking:
@@ -64,8 +68,10 @@ def todo(featureName=None, enabled=True, blocking=False, limitCalls=True,
     else:
         printTodo(False)
 
-def confidence(level, interpretAs:int=None):
-    if not __debug__: return
+
+def confidence(level, interpretAs: int = None):
+    if not __debug__:
+        return
 
     def wrap(func):
         def innerWrap(*funcArgs, **funcKwArgs):
@@ -77,7 +83,7 @@ def confidence(level, interpretAs:int=None):
                 if type(level) is str:
                     return f'({level} confident)'
                 else:
-                    assert(type(level) in (int, float))
+                    assert (type(level) in (int, float))
                     return f'({level}% confidence)'
 
             def definiteFail():
@@ -141,7 +147,7 @@ def confidence(level, interpretAs:int=None):
                 elif _level in definiteFailResponses:
                     definiteFail()
                 elif _level not in CommonResponses.YES and _level not in CommonResponses.HIGH_AMOUNT and \
-                     _level not in CommonResponses.NA  and _level not in CommonResponses.MODERATE_AMOUNT:
+                        _level not in CommonResponses.NA and _level not in CommonResponses.MODERATE_AMOUNT:
                     unknownInput()
             else:
                 unknownInput()
@@ -149,12 +155,15 @@ def confidence(level, interpretAs:int=None):
         return innerWrap
     return wrap
 
+
 confident = confidence
 untested = confidence(21)
 tested = confidence(80)
 
+
 def depricated(why=''):
-    if not __debug__: return
+    if not __debug__:
+        return
 
     def wrap(func):
         def innerWrap(*funcArgs, **funcKwArgs):
@@ -165,9 +174,11 @@ def depricated(why=''):
         return innerWrap
     return wrap
 
-def reprise(obj, *args, **kwargs):
-    """ Sets the __repr__ function to the __str__ function of a class.
-        Useful for custom classes with overloaded string functions
+
+def reprise(obj: type, *args, **kwargs) -> type:
+    """
+    A class decorator that sets the __repr__ member to the __str__ member.
+    Not super useful, but nice for quick custom classes.
     """
     obj.__repr__ = obj.__str__
     return obj

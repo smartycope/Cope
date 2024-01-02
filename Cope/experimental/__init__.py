@@ -1,7 +1,7 @@
 __version__ = '1.4.1'
 from .debugging import debug
 from .debugging import printArgs
-from .decorators import *
+# from .decorators import *
 from .imports import *
 from .geometry import *
 from .logging import *
@@ -9,7 +9,7 @@ from .misc import *
 from .key import *
 from .point import *
 from .timing import *
-from .prettyTable import *
+# from .prettyTable import *
 from .iterables import *
 from .func import *
 from . import colors
