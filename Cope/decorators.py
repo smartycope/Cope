@@ -1,7 +1,11 @@
 from .debugging import get_metadata, called_as_decorator, print_debug_count, get_context, print_context
 from .misc import CommonResponses
-from .colors import coloredOutput, darken
+from .colors import darken
 from ._config import config
+from rich import print
+
+
+print = config.console.out
 
 __todoCalls = set()
 def todo(featureName=None, enabled=True, blocking=False, limitCalls=True,
@@ -32,13 +36,13 @@ def todo(featureName=None, enabled=True, blocking=False, limitCalls=True,
     def printTodo(disableFunc):
         if not config.hide_todo and enabled:
             print_debug_count()
-            with coloredOutput(Colors.TODO):
-                print(get_context(metadata, True,
-                                (showFunc or config.display_func) and not disableFunc,
-                                showFile or config.display_file,
-                                showPath or config.display_path), end='')
+            # with coloredOutput(Colors.TODO):
+            print(get_context(metadata, True,
+                            (showFunc or config.display_func) and not disableFunc,
+                            showFile or config.display_file,
+                            showPath or config.display_path), end='', style='todo')
                 # This is coincidental, but it works
-                print(f'TODO: {featureName.__name__ if disableFunc else featureName}')
+            print(f'TODO: {featureName.__name__ if disableFunc else featureName}')
             if blocking:
                 raise NotImplementedError()
 
@@ -85,13 +89,13 @@ def confidence(level, interpretAs:int=None):
 
             def probablyFail():
                 print_context(3, darken(80, Colors.ALERT), showFunc=False)
-                with coloredOutput(Colors.ALERT):
-                    print(f"Warning: {func.__name__} will probably fail. {getPrettyLevel()}")
+                # with coloredOutput(Colors.ALERT):
+                print(f"Warning: {func.__name__} will probably fail. {getPrettyLevel()}", style='warn')
 
             def possiblyFail():
                 print_context(3, darken(80, Colors.CONFIDENCE_WARNING), showFunc=False)
-                with coloredOutput(Colors.CONFIDENCE_WARNING):
-                    print(f"Warning: {func.__name__} might not work. {getPrettyLevel()}")
+                # with coloredOutput(Colors.CONFIDENCE_WARNING):
+                print(f"Warning: {func.__name__} might not work. {getPrettyLevel()}", style='confidence_warning')
 
             def unknownInput():
                 # If we don't understand the input, just give a soft warning (it will display what the input is, anyway)

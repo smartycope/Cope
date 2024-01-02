@@ -1,16 +1,24 @@
+#%%
 from inspect import stack
+import inspect
 from os import get_terminal_size
 from os.path import relpath
 # from re import search as re_search
 from re import match as re_match
-from typing import Union
+from typing import Union, Literal
 from varname import VarnameRetrievingError, argname, nameof
-from ._config import config
-from ._None import _None
+from pprint import pformat
 
+if __name__ == '__main__':
+    from Cope._config import config
+    from Cope._None import _None
+else:
+    from ._config import config
+    from ._None import _None
+#%%
 print = config.console.out
 _repr = repr
-
+#%%
 def printArgs(*args, **kwargs):
     print('args:', args)
     print('kwargs:', kwargs)
@@ -25,16 +33,17 @@ def get_metadata(calls=1):
     except IndexError:
         return None
 
-def get_link(calls=0, full=False, customMetaData=None):
-    raise DeprecationWarning()
-    if customMetaData is not None:
-        d = customMetaData
-    else:
-        d = get_metadata(calls+2)
-
-    print_link(d.filename, d.lineno, d.function if full else None)
-
-def get_iterable_str(iterable: Union[tuple, list, set, dict], useMultiline:bool=True, limitToLine: bool=False, minItems: int=2, maxItems: int=50) -> str:
+def get_iterable_str(
+    iterable: Union[tuple, list, set, dict],
+    method: Literal['pprint', 'custom']='custom',
+    width: int=...,
+    depth: int=...,
+    indent: int=4,
+    # useMultiline: bool=True,
+    # limitToLine: bool=False,
+    # minItems: int=2,
+    # maxItems: int=50
+    ) -> str:
     """ "Cast" a tuple, list, set or dict to a string, automatically shorten
         it if it's long, and display how long it is.
 
@@ -47,33 +56,42 @@ def get_iterable_str(iterable: Union[tuple, list, set, dict], useMultiline:bool=
         Note:
             If limitToLine is True, it will overrule maxItems, but *not* minItems
     """
-    def getBrace(opening):
-        if isinstance(iterable, list):
-            return '[' if opening else ']'
-        elif isinstance(iterable, (set, dict)):
-            return '{' if opening else '}'
-        else:
-            return '(' if opening else ')'
+    if width is Ellipsis:
+        width == get_terminal_size().columns
 
-    lengthAddOn = f'(len={len(iterable)})'
-    defaultStr  = str(iterable)
+    if method == 'pprint':
+        return pformat(iterable, width=width, depth=depth, indent=indent)
+    elif method == 'custom':
+        def getBrace(opening):
+            if isinstance(iterable, list):
+                return '[' if opening else ']'
+            elif isinstance(iterable, (set, dict)):
+                return '{' if opening else '}'
+            else:
+                return '(' if opening else ')'
 
-    # Print in lines
-    if (not limitToLine and len(defaultStr) + len(lengthAddOn) > (get_terminal_size().columns / 2)) or useMultiline:
-        rtnStr = f'{lengthAddOn} {getBrace(True)}'
-        if isinstance(iterable, dict):
-            for key, val in iterable.items():
-                rtnStr += f'\n\t<{type(key).__name__}> {key}: <{type(val).__name__}> {val}'
+        lengthAddOn = f'(len={len(iterable)})'
+        defaultStr  = str(iterable)
+
+        # Print in lines
+        # if (not limitToLine and len(defaultStr) + len(lengthAddOn) > (get_terminal_size().columns / 2)) or useMultiline:
+        if len(defaultStr) + len(lengthAddOn) > (get_terminal_size().columns / 2):
+            rtnStr = f'{lengthAddOn} {getBrace(True)}'
+            if isinstance(iterable, dict):
+                for key, val in iterable.items():
+                    rtnStr += f'\n\t<{type(key).__name__}> {key}: <{type(val).__name__}> {val}'
+            else:
+                for cnt, i in enumerate(iterable):
+                    rtnStr += f'\n\t{cnt}: <{type(i).__name__}> {i}'
+            if len(iterable):
+                rtnStr += '\n'
+            rtnStr += getBrace(False)
         else:
-            for cnt, i in enumerate(iterable):
-                rtnStr += f'\n\t{cnt}: <{type(i).__name__}> {i}'
-        if len(iterable):
-            rtnStr += '\n'
-        rtnStr += getBrace(False)
+            rtnStr = defaultStr + lengthAddOn
+
+        return rtnStr
     else:
-        rtnStr = defaultStr + lengthAddOn
-
-    return rtnStr
+        raise TypeError(f"Incorrect method `{method}` given. Options are 'pprint' and 'custom'.")
 
     """
     if type(v) in (tuple, list, set) and len(v) > minItems:
@@ -114,9 +132,12 @@ def get_iterable_str(iterable: Union[tuple, list, set, dict], useMultiline:bool=
     """
 
 def get_typename(var, addBraces=True):
+    """ Get the name of the type of var, formatted nicely.
+        Also gets the types of the elements it holds, if `var` is a collection.
+    """
     def getUniqueType(item):
         returnMe = type(item).__name__
-        while type(item) in (tuple, list, set):
+        while isinstance(item, (tuple, list, set)):
             try:
                 item = item[0]
             except (KeyError, IndexError, TypeError):
@@ -130,12 +151,13 @@ def get_typename(var, addBraces=True):
                 cnt += 1
         return returnMe + (')'*cnt)
 
-    if type(var) is dict:
+    if isinstance(var, dict):
+        name = type(var).__name__
         if len(var) > 0:
-            rtn = f'dict({type(list(var.keys())[0]).__name__}:{type(list(var.values())[0]).__name__})'
+            rtn = f'{name}({type(list(var.keys())[0]).__name__}:{type(list(var.values())[0]).__name__})'
         else:
-            rtn = 'dict()'
-    elif type(var) in (tuple, list, set, dict):
+            rtn = f'{name}()'
+    elif isinstance(var, (tuple, list, set, dict)):
         types = []
         for i in var:
             types.append(getUniqueType(i))
@@ -148,39 +170,29 @@ def get_typename(var, addBraces=True):
         rtn = type(var).__name__
     return f'<{rtn}>' if addBraces else rtn
 
-def print_link(filename, lineNum, function=None):
-    """ Print a VSCodium clickable file and line number
-        If function is specified, a full python error message style line is printed
-    """
-    raise DeprecationWarning()
-    if function is None:  #    \|/  Oddly enough, this double quote is nessicary
-        print('\t', filename, '", line ', lineNum, '\033[0m', sep='', style='link')
-    else:
-        print('\tFile "', filename, '", line ', lineNum, ', in ', function, sep='', style='link')
-
 def print_debug_count(leftAdjust=2):
     config._debug_count += 1
     print(f'{str(config._debug_count)+":":<{leftAdjust+2}}', end='', style='count')
 
-# Doesn't work
-def get_varname_manually(var, full=True, calls=2, metadata=None):
-    # Not quite sure why it's plus 2?...
-    context = get_metadata(calls=calls+2).code_context
-    if context is None:
-        return '?'
-    else:
-        line = context[0]
-    # Made with ezregex
-    # optional(stuff) + 'debug(' + group(stuff + multiOptional('(' + optional(stuff) + ')')) + ')' + optional(stuff)
-    match = re_match(r"(?:.+)?debug\((.+(?:\((?:.+)?\))*)\)(?:.+)?", line)
-    if match is None:
-        return '?'
-    else:
-        return match.groups()[0]
-    # ans.test('abc = lambda a: 6+ debug(parseColorParams((5, 5, 5)), name=8, clr=(a,b,c))\n')
-    return '?'
-
 def get_varname(var, full=True, calls=1, metadata=None):
+    def get_varname_manually(calls):
+        # Not quite sure why it's plus 2?...
+        context = get_metadata(calls=calls+2).code_context
+        if context is None:
+            return '?'
+        else:
+            line = context[0]
+        # Made with ezregex
+        # optional(stuff) + 'debug(' + group(stuff + multiOptional('(' + optional(stuff) + ')')) + ')' + optional(stuff)
+        match = re_match(r"(?:.+)?debug\((.+(?:\((?:.+)?\))*)\)(?:.+)?", line)
+        if match is None:
+            return '?'
+        else:
+            return match.groups()[0]
+        # ans.test('abc = lambda a: 6+ debug(parseColorParams((5, 5, 5)), name=8, clr=(a,b,c))\n')
+        return '?'
+
+
     try:
         rtn = argname('var', frame=calls+1)
     # It's a *likely* string literal
@@ -196,12 +208,12 @@ def get_varname(var, full=True, calls=1, metadata=None):
                 if config.verbosity >= 2 and not isinstance(var, Exception):
                     raise e2
                 else:
-                    rtn = get_varname_manually(var, full, calls+1, metadata)
+                    rtn = get_varname_manually(calls+1)
     except VarnameRetrievingError as e:
         if config.verbosity:
             raise e
         else:
-            rtn = get_varname_manually(var, full, calls+1, metadata)
+            rtn = get_varname_manually(calls+1)
 
     try:
         # It auto-adds ' around strings
@@ -286,29 +298,33 @@ def print_context(calls=1, showFunc=True, showFile=True, showPath=True):
                             showFile or config.display_file,
                             showPath or config.display_path),
                       end='', style='context')
-
-def debug(var=_None,                # The variable to debug
-          name: str=None,           # Don't try to get the name, use this one instead
-          color=_None,              # A number (0-5), a 3 item tuple/list, or None
-          showFunc: bool=None,      # Expressly show what function we're called from
-          showFile: bool=None,      # Expressly show what file we're called from
-          showPath: bool=None,      # Show just the file name, or the full filepath
-          useRepr: bool=False,      # Whether we should print the repr of var instead of str
-          calls: int=1,             # Add extra calls
-          active: bool=True,        # If this is false, don't do anything
-          background: bool=False,   # Whether the color parameter applies to the forground or the background
-          limitToLine: bool=True,   # When printing iterables, whether we should only print items to the end of the line
-          minItems: int=50,         # Minimum number of items to print when printing iterables (overrides limitToLine)
-          maxItems: int=-1,         # Maximum number of items to print when printing iterables, use None or negative to specify no limit
-          stackTrace: bool=False,   # Print a stack trace
-          raiseError: bool=False,   # If var is an error type, raise it
-          clr=_None,                # Alias of color
-          repr: bool=False,         # Alias of useRepr
-          trace: bool=False,        # Alias of stackTrace
-          bg: bool=False,           # Alias of background
-          throwError: bool=False,   # Alias of raiseError
-          throw: bool=False         # Alias of raiseError
-        ) -> "var":
+#%%
+def debug(
+    var=_None,                # The variable to debug
+    name: str=None,           # Don't try to get the name, use this one instead
+    color=...,                # A number (0-5), a 3 item tuple/list, or None
+    show: Literal['pprint', 'custom', 'repr']='custom',
+    showFunc: bool=None,      # Expressly show what function we're called from
+    showFile: bool=None,      # Expressly show what file we're called from
+    showPath: bool=None,      # Show just the file name, or the full filepath
+    # useRepr: bool=False,      # Whether we should print the repr of var instead of str
+    calls: int=1,             # Add extra calls
+    active: bool=True,        # If this is false, don't do anything
+    background: bool=False,   # Whether the color parameter applies to the forground or the background
+    # limitToLine: bool=True,   # When printing iterables, whether we should only print items to the end of the line
+    # minItems: int=50,         # Minimum number of items to print when printing iterables (overrides limitToLine)
+    # maxItems: int=-1,         # Maximum number of items to print when printing iterables, use None or negative to specify no limit
+    depth: int=...,
+    width: int=...,
+    stackTrace: bool=False,   # Print a stack trace
+    raiseError: bool=False,   # If var is an error type, raise it
+    clr=...,                  # Alias of color
+    # repr: bool=False,         # Alias of useRepr
+    trace: bool=False,        # Alias of stackTrace
+    bg: bool=False,           # Alias of background
+    throwError: bool=False,   # Alias of raiseError
+    throw: bool=False         # Alias of raiseError
+    ) -> "var":
     """ Print variable names and values for easy debugging.
 
         Usage:
@@ -341,14 +357,19 @@ def debug(var=_None,                # The variable to debug
     if not active or not __debug__:
         return var
 
+    # TODO:
+    # Implement rich.inspect
+    # implement inspect.ismodule, .ismethod, .isfunction, .isclass, etc.
+
+
     stackTrace = stackTrace or trace
-    useRepr = useRepr or repr
+    # useRepr = useRepr or repr
     background = background or bg
     throwError = throw or throwError or raiseError
     showFile = showFile or config.display_file
     showFunc = showFunc or config.display_func
     showPath = showPath or config.display_path
-    useColor = ('default' if clr is _None else clr) if color is _None else color
+    useColor = ('default' if clr is Ellipsis else clr) if color is Ellipsis else color
 
     if isinstance(var, Warning):
         useColor = 'warn'
@@ -364,6 +385,7 @@ def debug(var=_None,                # The variable to debug
     _print_context = lambda: print(get_context(metadata, showFunc, showFile, showPath), end='', style='context')
 
     #* First see if we're being called as a decorator
+    # inspect.
     if callable(var) and called_as_decorator('debug', metadata):
         def wrap(*args, **kwargs):
             # +1 call because we don't want to get this line, but the one before it
@@ -401,11 +423,11 @@ def debug(var=_None,                # The variable to debug
 
     #* Seperate the variables into a tuple of (typeStr, varString)
     varType = get_typename(var)
-    if useRepr:
+    if show == 'repr':
         varVal = _repr(var)
     else:
         if isinstance(var, (tuple, list, set, dict)):
-            varVal  = get_iterable_str(var, limitToLine, minItems, maxItems)
+            varVal  = get_iterable_str(var, method=show)
         else:
             varVal  = str(var)
 
@@ -428,3 +450,143 @@ def debug(var=_None,                # The variable to debug
 
     # Does the same this as debugged used to
     return var
+#%% Tests
+if __name__ == '__main__':
+    import sys
+    from os.path import join, dirname
+    import sys
+    sys.path.append(join(dirname( __file__ ), '..'))
+    from Cope.debugging import *
+    from Cope.colors import parse_color
+    #%%
+    var = 6
+    debug(var)
+    #%%
+
+    # def test_getMetaData():
+    # print('testing get_metadata')
+    # print(get_metadata())
+
+    # def test__debugGetLink():
+    # print('testing get_link')
+    # print(get_link())
+
+    # def test__debugGetListStr():
+    # get_iterable_str([1, 2, 3])
+
+    # def test__debugGetTypename():
+    # get_typename('test string literal')
+
+    # def test__debugPrintLink():
+    # print_link('testFile.py', 42)
+
+    # def test__printDebugCount():
+    # print_debug_count()
+
+    # def test__debugManualGetVarName():
+    # get_varname_manually(var)
+
+    # def test__debugGetVarName():
+    # get_varname(var)
+
+    # def test__debugGetAdjustedFilename():
+    # get_adjusted_filename('testFile.py')
+
+    # def test__debugGetContext():
+    # getContext()
+
+    # def test__debugPrintStackTrace():
+    # printStackTrace()
+
+    # def test__debugBeingUsedAsDecorator():
+    # called_as_decorator('testFunc')
+
+    # def test_printContext():
+    # print_context()
+
+    # def test_debug():
+    debug()
+    a = 6
+    s = 'test'
+    j = None
+    def testFunc():
+        print('testFunc called')
+
+    debug(a)
+    debug(a, 'apple')
+
+    debug("test3")
+    debug(s)
+    debug(6)
+    debug(None)
+
+    debug(j)
+    debug()
+
+    debug(testFunc)
+
+    foo = debug(a)
+    debug(foo)
+
+    debug(parseColorParams((5, 5, 5)))
+
+    debug(SyntaxError('Not an error'))
+    try:
+        debug(SyntaxError('Not an error'), raiseError=True)
+    except SyntaxError:
+        print('SyntaxError debug test passed!')
+    else:
+        print('SyntaxError debug test failed.')
+
+    debug(UserWarning('Not a warning'))
+    try:
+        debug(UserWarning('Not a warning'), raiseError=True)
+    except UserWarning:
+        print('UserWarning debug test passed!')
+    else:
+        print('UserWarning debug test failed.')
+
+    @debug
+    def testFunc2():
+        print('testFunc2 (decorator test) called')
+
+    debug()
+
+    testFunc2()
+
+    debug(None)
+
+    TUPLE = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+    LIST  = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    DICT  = {'a':1, 'b':2, 'c': 3}
+    TYPE_LIST = ['a', 2, 7.4, 3]
+    TYPE_TUPLE = ('a', 2, 7.4, 3)
+
+    debug([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], raiseError=True)
+    debug((0, 1, 2, 3, 4, 5, 6, 7, 8, 9), raiseError=True)
+    debug({'a':1, 'b':2, 'c': 3}, raiseError=True)
+    debug(['a', 2, 7.4, 3], raiseError=True)
+    debug(('a', 2, 7.4, 3), raiseError=True)
+    debug()
+    debug(TUPLE, raiseError=True)
+    debug(LIST, raiseError=True)
+    debug(DICT, raiseError=True)
+    debug(TYPE_LIST, raiseError=True)
+    debug(TYPE_TUPLE, raiseError=True)
+
+    debug(())
+    debug([])
+    debug({})
+    debug(set())
+
+
+    # test()
+
+    # CopeConfig.display_file=False
+    CopeConfig.display_func=False
+    # CopeConfig.display_path=True
+    # CopeConfig.root_dir = './.pytest_cache'
+
+    debug()
+
+    # test()
