@@ -1,7 +1,7 @@
 # from .decorators import todo, confidence
 from .imports import dependsOnPackage
 from .debugging import get_varname, called_as_decorator, debug, get_metadata
-from .colors import ERROR
+# from .colors import ERROR
 import re
 import subprocess
 from os.path import join
@@ -215,7 +215,7 @@ def replaceLine(line, offset=0, keepTabs=True, convertTabs=True, calls=0):
         file[meta.lineno-1 + offset] = line + '\n'
 
     else:
-        debug(f"Error: lines don't match, not replacing line.\n\tMetadata: \"{meta.code_context}\"\n\tFile: \"{file[meta.lineno-1]}\"", clr=ERROR)
+        debug(f"Error: lines don't match, not replacing line.\n\tMetadata: \"{meta.code_context}\"\n\tFile: \"{file[meta.lineno-1]}\"", clr=-1)
         return
 
     with open(meta.filename, 'w') as f:

@@ -1,5 +1,5 @@
 from ._None import _None
-from .decorators import todo
+# from .decorators import todo
 from typing import Union, Callable, Iterable
 
 def isiterable(obj, includeStr=False):
@@ -537,8 +537,9 @@ class MultiAccessDict(dict):
         return [super().__getitem__(key) for key in keys]
 
     def __setitem__(self, *keys, value):
-        todo('figure out how the setitem parameters work')
-    #     return [super().__setitem__(key) for key in keys]
+        pass
+        # todo('figure out how the setitem parameters work')
+        # return [super().__setitem__(key) for key in keys]
 
 class ZerosMultiAccessDict(ZerosDict):
     """ A combonation of a ZerosDict and a MultiAccessDict """

@@ -58,7 +58,7 @@ class getTime:
         elapsed_time = round(t2 - self.t, self.accuracy)
         print(self.name, ' ' * (15 - len(self.name)), 'took', f'{elapsed_time:.{self.accuracy}f}', '\ttime to run.')
 
-def psleep(seconds, func):
+def psleep(seconds, func, rtn=True):
     """ Process sleep: run func in a while loop for a specified amount of time """
     end = now()
     while now() < end:

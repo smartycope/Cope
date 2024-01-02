@@ -1,5 +1,5 @@
 from .imports import checkImport
-from .decorators import todo
+# from .decorators import todo
 from .func import Signal
 
 class KeyStandard:
@@ -886,7 +886,7 @@ class KeySequence:
         self.currentSequence = []
 
     def update(self, key, pressed):
-        todo('not finished', blocking=True)
+        # todo('not finished', blocking=True)
         if key in modifierKeys:
             self.activeMods[key] = pressed
 
