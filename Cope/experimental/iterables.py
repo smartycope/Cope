@@ -2,72 +2,7 @@ from ._None import _None
 # from .decorators import todo
 from typing import Union, Callable, Iterable
 
-def isiterable(obj, includeStr=False):
-    return isinstance(obj, Iterable) and (type(obj) is not str if not includeStr else True)
 
-def isnumber(obj):
-    # return isinstance(obj, (int, float))
-    try:
-        float(obj)
-    except:
-        return False
-    else:
-        return True
-
-def ensureIterable(obj, useList=False):
-    if not isiterable(obj):
-        return [obj, ] if useList else (obj, )
-    else:
-        return obj
-
-def ensureNotIterable(obj, emptyBecomes=_None):
-    if isiterable(obj):
-        # Generators are iterable, but don't inherantly have a length
-        try:
-            len(obj)
-        except:
-            obj = list(obj)
-
-        if len(obj) == 1:
-            try:
-                return obj[0]
-            except TypeError:
-                return list(obj)[0]
-        elif len(obj) == 0:
-            return obj if emptyBecomes is _None else emptyBecomes
-        else:
-            return obj
-    else:
-        return obj
-
-def flattenList(iterable, recursive=False, useList=True):
-    if recursive:
-        raise NotImplementedError
-
-    useType = list if useList else type(iterable)
-    rtn = useType()
-    for i in iterable:
-        rtn += useType(i)
-    return rtn
-    # print(flattenList(('a', 'b', [1, 2, 3]), useList=False))
-
-def findIndex(iter, value):
-    #Finds index in list l that is closest to value.
-    #Uses a binary search.
-    low = 0
-    high = len(iter)-1
-    while low+1 < high:
-        mid = (low+high) // 2
-        if iter[mid] > value:
-            high = mid
-        elif iter[mid] < value:
-            low = mid
-        else:
-            return mid
-    if abs(iter[high]-value) < abs(iter[low]-value):
-        return high
-    else:
-        return low
 
 def removeDuplicates(iterable, method='sorted set'):
     method = method.lower()
@@ -104,28 +39,6 @@ def removeDuplicates(iterable, method='sorted set'):
 
     # for i in iterable:
     #     if isiterable(i) and
-
-# @confidence(10)
-def normalizeList(iterable, ensureList=False):
-    debug()
-    if ensureList:
-        return list(removeDuplicates(flattenList(ensureIterable(list(iterable), True))))
-    else:
-        return list(ensureNotIterable(removeDuplicates(flattenList(ensureIterable(list(iterable), True)))))
-
-def getIndexWith(obj, key):
-    """ Returns the index of the first object in a list in which key returns true to.
-    Example: getIndexWith([ [5, 3], [2, 3], [7, 3] ], lambda x: x[0] + x[1] == 10) -> 2
-    If none are found, returns None
-    """
-    for cnt, i in enumerate(obj):
-        if key(i):
-            return cnt
-    return None
-
-def invertDict(d):
-    """ Returns the dict given, but with the keys as values and the values as keys. """
-    return dict(zip(d.values(), d.keys()))
 
 def addDicts(*dicts):
     """ Basically the same thing as Dict.update(), except returns a copy

@@ -1,24 +1,25 @@
-# from .debugging import get_metadata, called_as_decorator, print_debug_count, get_context, print_context
-# from .misc import CommonResponses
+from .debugging import get_metadata, called_as_decorator, print_debug_count, get_context, print_context
+from .misc import interpret_percentage
+from warnings import warn
 # from .colors import coloredOutput, darken
 # from ._config import config
-'''
-__todoCalls = set()
+_todoCalls = set()
+hide_todo = False
 
 
-def todo(
-    featureName=None,
-    enabled=True,
-    blocking=False,
-    limitCalls=True,
-    showFunc=True,
-    showFile=True,
-    showPath=False
-):
+class EpistemologicalWarning(UserWarning):
+    """ This is a joke/pet peeve of mine for people who say they're 100% confident in something """
+    pass
+
+def todo(feature:str=None, enabled:bool=True, blocking:bool=False, limit:bool=True):
     # Can be manually turned on or off with hideAllTodos(bool).
     """ Leave reminders for yourself to finish parts of your code.
         Can also be used as a decorator (for functions or classes) to print a reminder and optionally
         throw a NotImplemented error on being called/constructed.
+        Parameters:
+            enabled: enable or disable printed warnings
+            blocking: raise an error, instead of just warning you
+            limit: if called multiple times, and this is true, only print once
     """
 
     if not __debug__:
@@ -28,23 +29,19 @@ def todo(
     situation = called_as_decorator('todo', metadata)
     # First off, if we're limiting calls, check if we've already been called
     uniqueID = (metadata.lineno, metadata.filename)
-    if limitCalls and uniqueID in __todoCalls:
+    if limit and uniqueID in _todoCalls:
         return
     else:
-        __todoCalls.add(uniqueID)
+        _todoCalls.add(uniqueID)
 
     def printTodo(disableFunc):
         if not config.hide_todo and enabled:
             print_debug_count()
-            # with coloredOutput(Colors.TODO):
-            print(get_context(metadata, True,
-                            (showFunc or config.display_func) and not disableFunc,
-                            showFile or config.display_file,
-                            showPath or config.display_path), end='', style='todo')
-                # This is coincidental, but it works
-            print(f'TODO: {featureName.__name__ if disableFunc else featureName}')
+            print(get_context(metadata, path=True, func=False if disableFunc else None), end='', style=color)
+             # This is coincidental, but it works
+            print(f'TODO: {feature.__name__ if disableFunc else feature}')
             if blocking:
-                raise NotImplementedError()
+                raise NotImplementedError(feature)
 
     # Being used as a function decorator, or we're not sure
     if situation in (1, 3):
@@ -52,113 +49,51 @@ def todo(
             def innerWrap(*funcArgs, **funcKwArgs):
                 printTodo(True)
                 if blocking:
-                    raise NotImplementedError()
-                return featureName(*funcArgs, **funcKwArgs)
+                    raise NotImplementedError(feature)
+                return feature(*funcArgs, **funcKwArgs)
             return innerWrap
         return wrap
 
     elif situation == 2:
         def wrap(clas):
             def raiseErr(*_, **kw_):
-                raise NotImplementedError()
+                raise NotImplementedError(feature)
             printTodo(True)
             if blocking:
-                featureName.__init__ = raiseErr
-        return featureName
+                feature.__init__ = raiseErr
+        return feature
     else:
         printTodo(False)
 
-
-def confidence(level, interpretAs: int = None):
+def confidence(level:float):
     if not __debug__:
         return
 
+    level = interpret_percentage(level) * 100
+
     def wrap(func):
         def innerWrap(*funcArgs, **funcKwArgs):
-            definiteFailResponses = ()
-            possiblyFailResponses = ()
-            probablyFailResponses = ()
 
-            def getPrettyLevel():
-                if type(level) is str:
-                    return f'({level} confident)'
-                else:
-                    assert (type(level) in (int, float))
-                    return f'({level}% confidence)'
+            # This is a pet-peeve
+            if level > 100:
+                raise TypeError(f"You can't be {level}% confident, that's not how it works.")
+            elif level == 100:
+                raise EpistemologicalWarning(f'Are you *sure* you\'re 100% confident? (not 99.99%?)')
+            # Definite Failure
+            elif level < 10:
+                raise UserWarning(f"{func.__name__} will almost certainly going to fail. ({level}% confidence)")
+            # Likely Failure
+            elif level <= 50:
+                print_context(3, func=False, color='warn')
+                print(f"Warning: {func.__name__} will probably fail. ({level}% confidence)", style='warn')
+            # Possible Failure
+            elif level < 80:
+                print_context(3, func=False, color='confidence_warning')
+                print(f"Warning: {func.__name__} might not work. ({level}% confidence)", style='confidence_warning')
 
-            def definiteFail():
-                raise UserWarning(f"{func.__name__} is going to fail. {getPrettyLevel()}")
-
-            def probablyFail():
-                print_context(3, darken(80, Colors.ALERT), showFunc=False)
-                # with coloredOutput(Colors.ALERT):
-                print(f"Warning: {func.__name__} will probably fail. {getPrettyLevel()}", style='warn')
-
-            def possiblyFail():
-                print_context(3, darken(80, Colors.CONFIDENCE_WARNING), showFunc=False)
-                # with coloredOutput(Colors.CONFIDENCE_WARNING):
-                print(f"Warning: {func.__name__} might not work. {getPrettyLevel()}", style='confidence_warning')
-
-            def unknownInput():
-                # If we don't understand the input, just give a soft warning (it will display what the input is, anyway)
-                possiblyFail()
-                return
-
-                if interpretAs is None:
-                    raise TypeError(f"I don't recognize {level} as a confidence level.")
-
-                if interpretAs > 100:
-                    raise TypeError(f"You can't be {interpretAs}% confident, that's not how it works.")
-                elif interpretAs < 0:
-                    # replaceLine(f'\n\t\t\t\t\t\t"{level.lower()},', offset=+2)
-                    definiteFailResponses += (
-
-                    )
-                    definiteFail()
-                elif interpretAs < 20:
-                    # replaceLine(f'\n\t\t\t\t\t\t"{level.lower()},', offset=+2)
-                    probablyFailResponses += (
-
-                    )
-                    probablyFail()
-                elif interpretAs < 50:
-                    # replaceLine(f'\n\t\t\t\t\t\t"{level.lower()},', offset=+2)
-                    possiblyFailResponses += (
-
-                    )
-                    possiblyFail()
-
-            if type(level) in (int, float):
-                # This is a pet-peeve
-                if level > 100:
-                    raise TypeError(f"You can't be {level}% confident, that's not how it works.")
-                elif level < 0:
-                    definiteFail()
-                elif level < 20:
-                    probablyFail()
-                elif level < 50:
-                    possiblyFail()
-            elif type(level) is str:
-                _level = level.lower()
-                if _level in CommonResponses.NO or _level in CommonResponses.LOW_AMOUNT or _level in probablyFailResponses:
-                    probablyFail()
-                elif _level in CommonResponses.MAYBE or _level in CommonResponses.SOME_AMOUNT or _level in possiblyFailResponses:
-                    possiblyFail()
-                elif _level in definiteFailResponses:
-                    definiteFail()
-                elif _level not in CommonResponses.YES and _level not in CommonResponses.HIGH_AMOUNT and \
-                        _level not in CommonResponses.NA and _level not in CommonResponses.MODERATE_AMOUNT:
-                    unknownInput()
-            else:
-                unknownInput()
             return func(*funcArgs, **funcKwArgs)
         return innerWrap
     return wrap
-
-
-confident = confidence
-untested = confidence(21)
-tested = confidence(80)
 
 def depricated(why=''):
     if not __debug__:
@@ -166,13 +101,13 @@ def depricated(why=''):
 
     def wrap(func):
         def innerWrap(*funcArgs, **funcKwArgs):
-            print_context(2, darken(80, Colors.DEPRICATED_WARNING))
-            with coloredOutput(Colors.DEPRICATED_WARNING):
-                print(f"{func.__name__} is Depricated{': ' if len(why) else '.'}{why}")
+
+            print_context(2, color='warn')
+            warn(f"{func.__name__} is Depricated{': ' if len(why) else '.'}{why}")
+
             return func(*funcArgs, **funcKwArgs)
         return innerWrap
     return wrap
-'''
 
 def reprise(obj: type, *args, **kwargs) -> type:
     """
@@ -181,3 +116,8 @@ def reprise(obj: type, *args, **kwargs) -> type:
     """
     obj.__repr__ = obj.__str__
     return obj
+
+
+confident = confidence
+untested = confidence(51)
+tested = confidence(95)

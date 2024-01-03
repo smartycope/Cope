@@ -1,4 +1,3 @@
-#%%
 from inspect import stack
 import inspect
 from os import get_terminal_size
@@ -8,51 +7,28 @@ from re import match as re_match
 from typing import Union, Literal
 from varname import VarnameRetrievingError, argname, nameof
 from pprint import pformat
+from typing import *
 
-# if __name__ == '__main__':
-    # from Cope._config import config
-    # from Cope._None import _None
-# else:
-#     from ._config import config
-#     from ._None import _None
-from pathlib import Path
-from typing import Union, SupportsInt
-from rich.console import Console
-from rich.theme import Theme
+from ._config import config
+from ._None import _None
 
-class _ConfigSingleton:
-    # Override the debug parameters and display the file/function for each debug call
-    #   (useful for finding debug calls you left laying around and forgot about)
-    display_file = True
-    display_func = True
-    display_path = False
-    root_dir = None
-
-    _debug_count = 0
-    verbosity = 0
-
-    hide_todo = False
-
-    theme = Theme.read(Path(__file__).parent/'style.cfg')
-    console = Console(theme=theme)
-
-
-config = _ConfigSingleton()
-
-#%%
-# A unique dummy class for parameters
-class _None: pass
 
 print = config.console.out
 _repr = repr
-#%%
+_debug_count = 0
+root_dir = None
+display_func = True
+display_file = True
+display_path = False
+
 def printArgs(*args, **kwargs):
     print('args:', args)
     print('kwargs:', kwargs)
 
-def get_metadata(calls=1):
+def get_metadata(calls:int=1) -> inspect.FrameInfo:
     """ Gets the meta data of the line you're calling this function from.
-        Calls is for how many function calls to look back from.
+        `calls` is for how many function calls to look back from.
+        Returns None if that number of calls is invalid
     """
     try:
         s = stack()[calls]
@@ -60,16 +36,12 @@ def get_metadata(calls=1):
     except IndexError:
         return None
 
-def get_iterable_str(
+def prettify(
     iterable: Union[tuple, list, set, dict],
     method: Literal['pprint', 'custom']='custom',
     width: int=...,
     depth: int=...,
     indent: int=4,
-    # useMultiline: bool=True,
-    # limitToLine: bool=False,
-    # minItems: int=2,
-    # maxItems: int=50
     ) -> str:
     """ "Cast" a tuple, list, set or dict to a string, automatically shorten
         it if it's long, and display how long it is.
@@ -120,45 +92,7 @@ def get_iterable_str(
     else:
         raise TypeError(f"Incorrect method `{method}` given. Options are 'pprint' and 'custom'.")
 
-    """
-    if type(v) in (tuple, list, set) and len(v) > minItems:
-        if type(v) is set:
-            v = tuple(v)
-
-        ellipsis = f', ... '
-        length = f'(len={len(v)})'
-
-        if limitToLine:
-            firstHalf  = str(v[0:round(minItems/2)])[:-1]
-            secondHalf = str(v[-round(minItems/2)-1:-1])[1:]
-            prevFirstHalf = firstHalf
-            prevSecondHalf = secondHalf
-            index = 0
-
-            # The 54 is a fugde factor. I don't know why it needs to be there, but it works.
-            while (6 + 54 + len(length) + len(firstHalf) + len(secondHalf)) < get_terminal_size().columns:
-                index += 1
-                firstHalf  = str(v[0:round((minItems+index)/2)])[:-1]
-                secondHalf = str(v[-round((minItems+index)/2)-1:-1])[1:]
-                prevFirstHalf = firstHalf
-                prevSecondHalf = secondHalf
-                if index > 6:
-                    break
-
-            firstHalf = prevFirstHalf
-            secondHalf = prevSecondHalf
-
-        else:
-            firstHalf  = str(v[0:round(maxItems/2)])[:-1]
-            secondHalf = str(v[-round(maxItems/2)-1:-1])[1:]
-
-        return firstHalf + ellipsis + secondHalf + length
-
-    else:
-        return str(v) + f'(len={len(v)})'
-    """
-
-def get_typename(var, addBraces=True):
+def get_full_typename(var, add_braces:bool=True) -> str:
     """ Get the name of the type of var, formatted nicely.
         Also gets the types of the elements it holds, if `var` is a collection.
     """
@@ -195,13 +129,15 @@ def get_typename(var, addBraces=True):
         rtn = fullName
     else:
         rtn = type(var).__name__
-    return f'<{rtn}>' if addBraces else rtn
+    return f'<{rtn}>' if add_braces else rtn
 
-def print_debug_count(leftAdjust=2):
-    config._debug_count += 1
-    print(f'{str(config._debug_count)+":":<{leftAdjust+2}}', end='', style='count')
+def print_debug_count(left_adjust:int=2):
+    """ Increment and print the debug count """
+    _debug_count += 1
+    print(f'{str(_debug_count)+":":<{left_adjust+2}}', end='', style='count')
 
-def get_varname(var, full=True, calls=1, metadata=None):
+def get_varname(var, full:bool=True, calls:int=1, metadata:inspect.FrameInfo=None) -> str:
+    """ Gets the variable name given to `var` """
     def get_varname_manually(calls):
         # Not quite sure why it's plus 2?...
         context = get_metadata(calls=calls+2).code_context
@@ -219,7 +155,6 @@ def get_varname(var, full=True, calls=1, metadata=None):
         # ans.test('abc = lambda a: 6+ debug(parseColorParams((5, 5, 5)), name=8, clr=(a,b,c))\n')
         return '?'
 
-
     try:
         rtn = argname('var', frame=calls+1)
     # It's a *likely* string literal
@@ -228,8 +163,6 @@ def get_varname(var, full=True, calls=1, metadata=None):
             rtn = None
         else:
             try:
-                # print('var:', var)
-                # print('var type:', type(var))
                 rtn = nameof(var, frame=calls+1, vars_only=False)
             except Exception as e2:
                 if config.verbosity >= 2 and not isinstance(var, Exception):
@@ -252,34 +185,39 @@ def get_varname(var, full=True, calls=1, metadata=None):
     except:
         return rtn
 
-def get_adjusted_filename(filename):
+def get_adjusted_filename(filename:str) -> str:
+    """ Gets the filename of the file given, adjusted to be relative to the appropriate root directory """
     # Default behavior
-    if config.root_dir is None:
+    if root_dir is None:
         return relpath(filename)
-    elif len(config.root_dir):
-        return relpath(filename, config.root_dir)
+    elif len(root_dir):
+        return relpath(filename, root_dir)
     else:
         return filename
 
-def get_context(metadata, showFunc=True, showFile=True, showPath=False) -> str:
+def get_context(metadata:inspect.FrameInfo, func:bool=None, file:bool=None, path:bool=None) -> str:
     """ Returns the stuff in the [] (the "context") """
     if metadata is None:
         return ''
 
+    func = display_func if func is None else (display_func or func)
+    file = display_file if file is None else (display_file or file)
+    path = display_path if path is None else (display_path or path)
+
     # This logically must be true
-    if showPath:
-        showFile = True
+    if path:
+        file = True
 
     s = '['
-    if showPath:
+    if path:
         s += f'"{metadata.filename}", line {metadata.lineno}, in '
-    elif showFile:
+    elif file:
         s += f'"{get_adjusted_filename(metadata.filename)}", line {metadata.lineno}, in '
     # We apparently don't want any context at all (for whatever reason)
-    elif not showFunc:
+    elif not func:
         return ''
 
-    if showFunc:
+    if func:
         if metadata.function.startswith('<'):
             s += 'Global Scope'
         else:
@@ -290,10 +228,11 @@ def get_context(metadata, showFunc=True, showFile=True, showPath=False) -> str:
     s += '] '
     return s
 
-def print_stack_trace(calls, showFunc, showFile, showPath):
+def print_stack_trace(calls, func, file, path):
     for i in reversed(stack()[3:]):
-        print('\t', get_context(i, showFunc, showFile, showPath), style='trace')
+        print('\t', get_context(i, func, file, path), style='trace')
 
+# TODO Use inspect to do this instead (or possibly use __wrapped__ somehow?)
 def called_as_decorator(funcName, metadata=None, calls=1) -> 'Union[1, 2, 3, False]':
     """ Return 1 if being used as a function decorator, 2 if as a class decorator, 3 if not sure, and False if neither. """
     if metadata is None:
@@ -318,22 +257,20 @@ def called_as_decorator(funcName, metadata=None, calls=1) -> 'Union[1, 2, 3, Fal
 
     return False
 
-def print_context(calls=1, showFunc=True, showFile=True, showPath=True):
+def print_context(calls:int=1, func:bool=True, file:bool=True, path:bool=False, color='context'):
     print_debug_count()
-    print(get_context(get_metadata(1 + calls),
-                            showFunc or config.display_func,
-                            showFile or config.display_file,
-                            showPath or config.display_path),
-                      end='', style='context')
-#%%
+    print(get_context(get_metadata(1 + calls)), end='', style=color)
+
+class Undefined: pass; undefined = Undefined()
+
 def debug(
-    var=_None,                # The variable to debug
+    var=undefined,                # The variable to debug
     name: str=None,           # Don't try to get the name, use this one instead
     color=...,                # A number (0-5), a 3 item tuple/list, or None
     show: Literal['pprint', 'custom', 'repr']='custom',
-    showFunc: bool=None,      # Expressly show what function we're called from
-    showFile: bool=None,      # Expressly show what file we're called from
-    showPath: bool=None,      # Show just the file name, or the full filepath
+    func: bool=None,      # Expressly show what function we're called from
+    file: bool=None,      # Expressly show what file we're called from
+    path: bool=None,      # Show just the file name, or the full filepath
     # useRepr: bool=False,      # Whether we should print the repr of var instead of str
     calls: int=1,             # Add extra calls
     active: bool=True,        # If this is false, don't do anything
@@ -365,9 +302,9 @@ def debug(
             var: The variable or variables to print
             name: Manully specify the name of the variable
             color: A number between 0-5, or 3 or 4 tuple/list of color data to print the debug message as
-            showFunc: Ensure that the function the current call is called from is shown
-            showFile: Ensure that the file the current call is called from is shown
-            showPath: Show the full path of the current file, isntead of it's relative path
+            func: Ensure that the function the current call is called from is shown
+            file: Ensure that the file the current call is called from is shown
+            path: Show the full path of the current file, isntead of it's relative path
             useRepr: Use __repr__() instead of __str__() on the given variable
             limitToLine: If var is a list/tuple/dict/set, only show as many items as will fit on one terminal line, overriden by minItems
             minItems: If var is a list/tuple/dict/set, don't truncate more than this many items
@@ -393,9 +330,9 @@ def debug(
     # useRepr = useRepr or repr
     background = background or bg
     throwError = throw or throwError or raiseError
-    showFile = showFile or config.display_file
-    showFunc = showFunc or config.display_func
-    showPath = showPath or config.display_path
+    file = file or config.display_file
+    func = func or config.display_func
+    path = path or config.display_path
     useColor = ('default' if clr is Ellipsis else clr) if color is Ellipsis else color
 
     if isinstance(var, Warning):
@@ -409,7 +346,7 @@ def debug(
     # +1 call because we don't want to get this line, but the one before it
     metadata = get_metadata(calls+1)
 
-    _print_context = lambda: print(get_context(metadata, showFunc, showFile, showPath), end='', style='context')
+    _print_context = lambda: print(get_context(metadata, func, file, path), end='', style='context')
 
     #* First see if we're being called as a decorator
     # inspect.
@@ -420,7 +357,7 @@ def debug(
             print_debug_count()
 
             if stackTrace:
-                print_stack_trace(2, showFunc, showFile, showPath)
+                print_stack_trace(2, func, file, path)
 
             _print_context()  # was of style='note'
             print(f'{var.__name__}() called!', style='note')
@@ -431,11 +368,11 @@ def debug(
     print_debug_count()
 
     if stackTrace:
-        print_stack_trace(calls+1, showFunc, showFile, showPath)
+        print_stack_trace(calls+1, func, file, path)
 
     #* Only print the "HERE! HERE!" message
-    if var is _None:
-        # print(get_context(metadata, showFunc, showFile, showPath), end='', style=clr)
+    if var is undefined:
+        # print(get_context(metadata, func, file, path), end='', style=clr)
         _print_context()
 
         if not metadata.function.startswith('<'):
@@ -445,16 +382,16 @@ def debug(
         return
 
     #* Print the standard line
-    # print(get_context(metadata, showFunc, showFile, showPath), end='', style='metadata')
+    # print(get_context(metadata, func, file, path), end='', style='metadata')
     _print_context()
 
     #* Seperate the variables into a tuple of (typeStr, varString)
-    varType = get_typename(var)
+    varType = get_full_typename(var)
     if show == 'repr':
         varVal = _repr(var)
     else:
         if isinstance(var, (tuple, list, set, dict)):
-            varVal  = get_iterable_str(var, method=show)
+            varVal  = prettify(var, method=show)
         else:
             varVal  = str(var)
 
@@ -499,10 +436,10 @@ if __name__ == '__main__':
     # print(get_link())
 
     # def test__debugGetListStr():
-    # get_iterable_str([1, 2, 3])
+    # prettify([1, 2, 3])
 
     # def test__debugGetTypename():
-    # get_typename('test string literal')
+    # get_full_typename('test string literal')
 
     # def test__debugPrintLink():
     # print_link('testFile.py', 42)

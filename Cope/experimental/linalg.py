@@ -1,21 +1,11 @@
 from .decorators import reprise, untested
 from .debugging import debug
 from .imports import dependsOnPackage, ensureImported
-
-# import numpy as np
-# from sympy import Matrix, ImmutableMatrix, sympify, latex
-# from sympy.matrices.matrices import MatrixSubspaces
-# ensureImported('sympy', as_='sp')
-ensureImported('sympy')
 import sympy as sp
+from sympy import Matrix, ImmutableMatrix, latex, sympify, pprint, eye, randMatrix, flatten, sqrt, zeros, Integer, Float
+import ezregex as er
 
-
-@dependsOnPackage('clipboard', 'copy')
-@dependsOnPackage('sympy', ('Matrix', 'ImmutableMatrix', 'latex', 'sympify'))
 def matrix(string, rows=None, cols=None, cp=False, np=False, immutable=False, verbose=False):
-    # print('test')
-    # ensureImported('sympy', ('Matrix', 'ImmutableMatrix', 'latex', 'sympify'))
-    # from sympy import latex
     # Parse params
     assert rows is None or cols is None
     if np:
@@ -37,7 +27,7 @@ def matrix(string, rows=None, cols=None, cp=False, np=False, immutable=False, ve
     elif rows is None and cols is None:
         rows = True
 
-    num = er.anyOf(er.optional('-')+er.matchMax(er.anyCharExcept(er.space()))+er.space(), er.optional('-')+er.optional(r'\.')+er.anything()).compile()
+    num = er.anyOf(er.optional('-')+er.matchMax(er.anyCharExcept(er.space))+er.space, er.optional('-')+er.optional(r'\.')+er.anything).compile()
 
     if cols:
         _cols = string.split(';')
@@ -59,17 +49,13 @@ def matrix(string, rows=None, cols=None, cp=False, np=False, immutable=False, ve
         ans = type_(_caster([num.findall(i) for i in _rows]))
 
     if cp:
+        from clipboard import copy
         copy(latex(ans))
 
     return ans
 
 # This doesn't quite work yet, I'll make it general purpose later
-def combineMatricies(*mats):  #, cols=None, rows=None):
-    # parse params
-    # assert cols is None or rows is None
-    # if cols is None and rows is None:
-    #     cols = True
-
+def combineMatricies(*mats):
     rtn = mats[0]
     index = 1
     for c in mats[1:]:
@@ -81,8 +67,6 @@ def combineMatricies(*mats):  #, cols=None, rows=None):
         #     index += c.rows - 1
     return rtn
 
-@reprise
-@dependsOnPackage('sympy', as_='sp')
 class Space(sp.matrices.matrices.MatrixSubspaces):
     def __init__(self, *bases):
         if len(bases) == 1 and isinstance(bases[0], (list, tuple)):
@@ -142,9 +126,8 @@ def isSimilar(*args):
     return all(i == first for i in args)
 
 # Sympy method
-@dependsOnPackage('numpy', as_='np')
-@dependsOnPackage('sympy', ('Matrix', 'pprint', 'eye'))
 def steadyState(stochastic, accuracy=10000000000000, verbose=False):
+    import numpy as np
     if isinstance(stochastic, np.ndarray):
         stochastic = Matrix(stochastic)
         numpy = True
@@ -236,7 +219,6 @@ def orthonormalize(orthogonalSet):
 # alignedV, w = project(v, u)
 # assert Matrix.orthogonalize(u, w, normalize=True) == orthonormalize((u, w))
 
-@dependsOnPackage('sympy', ('Matrix',))
 def splitVector(y:'Matrix', W:'Space', innerProduct=None) -> list:
     """ Returns vectors in W which can be linearly combined to get y """
     if innerProduct is None:
@@ -249,7 +231,6 @@ def splitVector(y:'Matrix', W:'Space', innerProduct=None) -> list:
 #     v = randMatrix(rows, 1)
 #     assert sum(splitVector(v, Space([randMatrix(rows, 1) for _ in range(rows)])), start=zeros(rows, 1)) == v
 
-@dependsOnPackage('sympy', ('Matrix', 'zeros'))
 def project(y:'Matrix', W:'Space', innerProduct=None) -> '(vector in W, vector in W⟂)':
     """ W  = a subspace of R^n we want to describe y with (to get proj_y)
         y  = some y in R^n
@@ -275,7 +256,6 @@ def project(y:'Matrix', W:'Space', innerProduct=None) -> '(vector in W, vector i
 #     [   1],
 #     [-3/2]]))
 
-@dependsOnPackage('sympy', ('Integer', "Float"))
 def normalizePercentage(p, error='Percentage is of the wrong type (int or float expected)'):
     if isinstance(p, (int, Integer)):
         return p / 100
