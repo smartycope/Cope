@@ -1,5 +1,5 @@
 # from .colors import LOG_COLOR, coloredOutput, WARN
-from .debugging import print_context
+from ..debugging import print_context
 from enum import Enum
 from ._config import config
 

@@ -1,6 +1,6 @@
 # from .decorators import todo, confidence
 from .imports import dependsOnPackage
-from .debugging import get_varname, called_as_decorator, debug, get_metadata
+from ..debugging import get_varname, called_as_decorator, debug, get_metadata
 # from .colors import ERROR
 import re
 import subprocess

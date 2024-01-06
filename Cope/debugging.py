@@ -8,12 +8,13 @@ from typing import Union, Literal
 from varname import VarnameRetrievingError, argname, nameof
 from pprint import pformat
 from typing import *
+from rich import print
 
-from ._config import config
-from ._None import _None
+# from ._config import config
+# from ._None import _None
 
 
-print = config.console.out
+# print = config.console.out
 _repr = repr
 _debug_count = 0
 root_dir = None
@@ -261,7 +262,8 @@ def print_context(calls:int=1, func:bool=True, file:bool=True, path:bool=False, 
     print_debug_count()
     print(get_context(get_metadata(1 + calls)), end='', style=color)
 
-class Undefined: pass; undefined = Undefined()
+class Undefined: pass
+undefined = Undefined()
 
 def debug(
     var=undefined,                # The variable to debug

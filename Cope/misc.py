@@ -14,8 +14,8 @@ def only1(*args, null=None) -> bool:
     return len(available(*args, null=null)) == 1
 
 def interpret_percentage(percentage:Union[int, float]) -> float:
-    if isinstance(p, bool):
-        return float(p)
+    if isinstance(percentage, bool):
+        return float(percentage)
     elif percentage > 1:
         return percentage / 100
     return percentage

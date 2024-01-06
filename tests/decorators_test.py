@@ -1,5 +1,5 @@
 from os.path import join, dirname; import sys; sys.path.append(join(dirname( __file__ ), '..'))
-from Cope.decorators import *
+from Cope import *
 
 def test_todo():
     return
@@ -41,7 +41,6 @@ def test_todo():
     else:
         print("class decorator test failed.")
 
-
 def test_decorator():
     return
 
@@ -64,8 +63,6 @@ def test_decorator():
         debug(funcKwArg)
 
     testFunc("calledArg1", 'calledArg2', funcKwArg='calledKwArg')
-
-
 
 def test_confidence():
     return

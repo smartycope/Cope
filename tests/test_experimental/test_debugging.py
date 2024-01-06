@@ -7,7 +7,8 @@ var = 6
 
 import sys
 from os.path import join, dirname; import sys; sys.path.append(join(dirname( __file__ ), '..'))
-from Cope.experimental.debugging import *
+from Cope.debugging import *
+from Cope import *
 # from Cope.experimental.colors import parseColorParams
 
 # def test_getMetaData():
