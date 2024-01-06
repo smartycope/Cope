@@ -4,3 +4,5 @@ __version__ = '2.0.0'
 from . import boilerplate
 from . import experimental
 from . import pygame
+from .misc import *
+from .decorators import *

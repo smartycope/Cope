@@ -12,10 +12,17 @@ This is my personal "standard library" of all the generally useful code I've wri
 
 ## Modules
 The currently available sub-modules are as follows:
-- expiremental
+- base
+    - The main module has a bunch of misc. functions, classes, and decorators
+- experimental
     - Full of all the stuff that needs rewriting, reviewing, debugging, testing, or detailing in order to be properly included. Subject to breaking API changes.
 - boilerplate
     - Some things I can just never remember how to do off the top of my head. Like decorator syntax. This is just full of strings (no code) of how to do certain things.
+- pygame
+    - Some misc. functions relating to the pygame library
+- linalg
+    - Not available yet, I need to go through and move them out of experimental
+    - Some linear algebra functions & classes to make linear algebra easier, including a matrix() function to make inputting matricies easier
 
 
 ## Documentation
@@ -29,9 +36,9 @@ I'm trying to keep it organized and stable, so I don't have project breaking on 
     - Tests (even if it's given to the user to see if it looks right)
     - Declared types, when possible
     - Snake_case (I've made up my mind, snake_case is standard in Python)
-- Everything should be grouped together into sub-modules where possible, to keep things organized and to manage dependancies
+- Everything should be grouped together into sub-modules where possible, to keep things organized and to manage dependencies
 
-Anything I have written that doesn't follow these rules, should be under the "expiremental" sub-module, which is subject to breaking API changes.
+Anything I have written that doesn't follow these rules, should be under the "experimental" sub-module, which is subject to breaking API changes.
 
 
 ## Installation

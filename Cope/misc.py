@@ -289,9 +289,9 @@ def ensure_not_iterable(iter:Iterable):
     return iter
 
 # TODO
-def sigfigs(num:float, sigfigs=3) -> str:
-    """ After all the STEM classes I've taken, I *still* don't understand how sigfigs work. """
-    NotImplemented
+# def sigfigs(num:float, sigfigs=3) -> str:
+    # """ After all the STEM classes I've taken, I *still* don't understand how sigfigs work. """
+    # NotImplemented
 
 def cp(thing=None, rnd:int=3, show=False, not_iterable=True, evalf=True):
     """ Quick shortcut for notebooks for copying things to the clipboard in an easy way"""
