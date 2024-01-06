@@ -6,3 +6,4 @@ from . import experimental
 from . import pygame
 from .misc import *
 from .decorators import *
+from .gym import SimpleGym

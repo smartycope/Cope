@@ -29,6 +29,8 @@ The currently available sub-modules are as follows:
     - Some things I can just never remember how to do off the top of my head. Like decorator syntax. This is just full of strings (no code) of how to do certain things.
 - pygame
     - Some misc. functions relating to the pygame library
+- gym
+    - Includes the SimpleGym class, which adds some features to the gymnasium (formerly gym) library
 - linalg
     - Not available yet, I need to go through and move them out of experimental
     - Some linear algebra functions & classes to make linear algebra easier, including a matrix() function to make inputting matricies easier
