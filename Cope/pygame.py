@@ -1,6 +1,7 @@
 import pygame
 from typing import Union
 
+# TODO: tests
 def rotateSurface(surface:pygame.Surface, angle:float, pivot:Union[tuple, list, pygame.math.Vector2], offset:pygame.math.Vector2):
     """ Rotate the surface around the pivot point.
 
