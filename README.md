@@ -1,3 +1,12 @@
+<!-- <div align="center"> -->
+<a href="https://github.com/smartycope/Cope/actions/workflows/unit-tests.yml">
+    <img src="https://github.com/smartycope/Cope/actions/workflows/unit-tests.yml/badge.svg" alt="Unit Tests">
+</a>
+<a href="https://pypi.org/project/Cope/">
+    <img src="https://img.shields.io/pypi/v/Cope.svg" alt="PyPI Latest Release">
+</a>
+<!-- </div> -->
+
 # Cope
 
 This is my personal "standard library" of all the generally useful code I've written for various projects over the years. Pretty much any time I've written a function or class and thought "this might be useful later", I've stuffed it in here.
