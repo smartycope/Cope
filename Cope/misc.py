@@ -1,5 +1,7 @@
 import re
 from random import randint
+import os
+import sys
 from typing import *
 from .debugging import get_metadata
 from itertools import chain
@@ -348,3 +350,21 @@ def flatten(iter:Iterable, recursive:bool=True) -> list:
 def invert_dict(d:dict) -> dict:
     """ Returns the dict given, but with the keys as values and the values as keys. """
     return dict(zip(d.values(), d.keys()))
+
+# Tested manually elsewhere
+# TODO: Add tests here
+class RedirectStd:
+    def __init__(self, stdout=None, stderr=None):
+        self._stdout = open(stdout or os.devnull, 'w')
+        self._stderr = open(stderr or os.devnull, 'w')
+
+    def __enter__(self):
+        self.old_stdout, self.old_stderr = sys.stdout, sys.stderr
+        self.old_stdout.flush(); self.old_stderr.flush()
+        sys.stdout, sys.stderr = self._stdout, self._stderr
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._stdout.flush(); self._stderr.flush()
+        self._stdout.close(); self._stderr.close()
+        sys.stdout = self.old_stdout
+        sys.stderr = self.old_stderr
