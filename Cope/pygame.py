@@ -1,3 +1,7 @@
+"""
+Functions & classes that extend the pygame
+"""
+
 import pygame
 from typing import Union
 

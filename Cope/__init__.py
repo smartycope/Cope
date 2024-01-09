@@ -1,9 +1,10 @@
-__version__ = '2.0.0'
+__version__ = '2.1.0'
 
-# Dump everything
+# Make these submodules
 from . import boilerplate
 from . import experimental
 from . import pygame
+from . import plotly
+# Dump everything in these directly into the main module
 from .misc import *
 from .decorators import *
-from .gym import SimpleGym

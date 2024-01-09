@@ -1,3 +1,7 @@
+"""
+Functions & classes that extend the gymnasium library
+"""
+
 import gymnasium as gym
 from typing import Literal, List, Tuple
 from gymnasium import spaces

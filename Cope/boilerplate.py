@@ -1,3 +1,7 @@
+"""
+Some stuff that I always forget the syntax for, or things which are useful so you don't have to retype them
+"""
+
 decorator = """
     def decorator(*decoratorArgs, **decoratorKwArgs):
         def wrap(func):
@@ -12,7 +16,7 @@ class CommonResponses:
     """ A collection of default responses for inputs. Make sure to use .lower() when testing agaisnt these.
         Note: There is some overlap between them, so testing order matters.
     """
-    YES   = ('y', 'yes', 'ya', 'yeah', 'si', 'true', 'definitely', 'accurate', 'totally')
+    YES   = ('y', 'yes', 'ya', 'yeah', 'si', 'true', 'definitely', 'accurate', 'totally', 'yup')
     NO    = ('n', 'no', 'not', 'nien', 'false', 'nope', 'not really', 'nah')
     MAYBE = ('sure', 'kinda', 'i guess', 'kind of', 'maybe', 'ish', 'sorta')
     NA    = ('none', 'na', 'n/a', 'not applicable')

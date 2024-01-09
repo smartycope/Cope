@@ -1,3 +1,7 @@
+"""
+Miscellaneous decorators that can be useful
+"""
+
 from .debugging import get_metadata, called_as_decorator, print_debug_count, get_context, print_context
 from .misc import interpret_percentage
 from warnings import warn
@@ -35,7 +39,7 @@ def todo(feature:str=None, enabled:bool=True, blocking:bool=False, limit:bool=Tr
         _todoCalls.add(uniqueID)
 
     def printTodo(disableFunc):
-        if not config.hide_todo and enabled:
+        if not hide_todo and enabled:
             print_debug_count()
             print(get_context(metadata, path=True, func=False if disableFunc else None), end='', style=color)
              # This is coincidental, but it works
