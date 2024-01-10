@@ -1,4 +1,4 @@
-from os.path import join, dirname; import sys; sys.path.append(join(dirname( __file__ ), '..'))
+from os.path import join, dirname; import sys; sys.path.append(join(dirname(__file__), '..'))
 from Cope.experimental.colors import *
 from PyQt6.QtGui import QColor
 

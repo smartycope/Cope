@@ -92,7 +92,7 @@ def confidence(level:float):
                 print(f"Warning: {func.__name__} will probably fail. ({level}% confidence)", style='warn')
             # Possible Failure
             elif level < 80:
-                print_context(3, func=False, color='confidence_warning')
+                # print_context(3, func=False, color='confidence_warning')
                 print(f"Warning: {func.__name__} might not work. ({level}% confidence)", style='confidence_warning')
 
             return func(*funcArgs, **funcKwArgs)

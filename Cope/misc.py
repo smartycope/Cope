@@ -274,6 +274,7 @@ def ensure_iterable(iter:Iterable, cast:type=list, ensure_cast_type:bool=True):
             return cast(iter)
         else:
             return iter
+ensureIterable = ensure_iterable
 
 # TODO Figure out how to test for non-terminating generators
 def ensure_not_iterable(iter:Iterable):
@@ -293,6 +294,7 @@ def ensure_not_iterable(iter:Iterable):
         return list(iter)[0]
 
     return iter
+ensureNotIterable = ensure_not_iterable
 
 # TODO
 # def sigfigs(num:float, sigfigs=3) -> str:

@@ -2,8 +2,8 @@
 Functions & classes that extend the pygame
 """
 
-import pygame
 from typing import Union
+import pygame
 
 # TODO: tests
 def rotateSurface(surface:pygame.Surface, angle:float, pivot:Union[tuple, list, pygame.math.Vector2], offset:pygame.math.Vector2):
@@ -15,7 +15,6 @@ def rotateSurface(surface:pygame.Surface, angle:float, pivot:Union[tuple, list, 
             pivot (tuple, list, pygame.math.Vector2): The pivot point.
             offset (pygame.math.Vector2): This vector is added to the pivot.
     """
-    import pygame
 
     rotated_image = pygame.transform.rotozoom(surface, -angle, 1)  # Rotate the image.
     rotated_offset = offset.rotate(angle)  # Rotate the offset vector.
