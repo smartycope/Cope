@@ -3,13 +3,9 @@ Functions & classes that extend the gymnasium library
 """
 
 import gymnasium as gym
-from typing import Literal, List, Tuple
-from gymnasium import spaces
 import pygame
 from pygame import Rect
-import numpy as np
-from random import randint
-import math
+
 from abc import ABC
 
 # This was tested manually by implementing it in https://github.com/smartycope/AntAI
@@ -47,6 +43,7 @@ class SimpleGym(gym.Env, ABC):
         """ super should be called first, if you  want to use the members like self.size
             shown_vars is a dictionary of {name: member} of members to display on the screen (for debuggin purposes)
         """
+        import numpy as np
 
         self.metadata = {"render_modes": ['pygame'], "render_fps": 4}
         assert render_mode is None or render_mode in self.metadata["render_modes"], render_mode

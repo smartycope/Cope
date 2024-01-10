@@ -336,9 +336,9 @@ def debug(
     # useRepr = useRepr or repr
     background = background or bg
     throwError = throw or throwError or raiseError
-    file = file or config.display_file
-    func = func or config.display_func
-    path = path or config.display_path
+    file = file or display_file
+    func = func or display_func
+    path = path or display_path
     useColor = ('default' if clr is Ellipsis else clr) if color is Ellipsis else color
 
     if isinstance(var, Warning):
