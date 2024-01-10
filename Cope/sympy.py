@@ -4,7 +4,7 @@ A bunch of functions and classes extending the sympy library
 
 from sympy import *
 
-def catagorize(expr:Expr, unknown:Symbol=Symbol('x')) -> list:
+def categorize(expr:Expr, unknown:Symbol=Symbol('x')) -> list:
     """ Catagorize `expr` as a function of any of:
             polynomial
             rational
@@ -27,13 +27,13 @@ def catagorize(expr:Expr, unknown:Symbol=Symbol('x')) -> list:
     if expr.as_poly().degree() == 2:
         rtn.append('quadratic')
     # Root
-    if isinstance(expr, Pow) and isinstance(expr.exp, Rational) and int(expr.exp) != expr.exp and expr.base == x:
+    if isinstance(expr, Pow) and isinstance(expr.exp, Rational) and int(expr.exp) != expr.exp and expr.base == unknown:
         rtn.append('root')
     # Power
     parts = expr.as_coeff_Mul()
-    if parts[0].is_real and isinstance(parts[1], Pow) and parts[1].base == x and parts[1].exp.is_real:
+    if parts[0].is_real and isinstance(parts[1], Pow) and parts[1].base == unknown and parts[1].exp.is_real:
         rtn.append('power')
     # Exponential
-    if isinstance(expr, Pow) and isinstance(expr.base, Rational) and expr.exp == x:
+    if isinstance(expr, Pow) and isinstance(expr.base, Rational) and expr.exp == unknown:
         rtn.append('exponential')
     return rtn
