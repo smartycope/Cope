@@ -1,3 +1,7 @@
+"""
+A bunch of miscellaneous functions that might be useful
+"""
+
 import re
 from random import randint
 import os

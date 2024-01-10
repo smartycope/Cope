@@ -1,3 +1,7 @@
+"""
+Functions & classes that can be useful for debugging
+"""
+
 from inspect import stack
 import inspect
 from os import get_terminal_size
