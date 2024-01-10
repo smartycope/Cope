@@ -355,12 +355,19 @@ def invert_dict(d:dict) -> dict:
     """ Returns the dict given, but with the keys as values and the values as keys. """
     return dict(zip(d.values(), d.keys()))
 
+import io
 # Tested manually elsewhere
 # TODO: Add tests here
 class RedirectStd:
     def __init__(self, stdout=None, stderr=None):
-        self._stdout = open(stdout or os.devnull, 'w')
-        self._stderr = open(stderr or os.devnull, 'w')
+        if isinstance(stdout, io.TextIOBase):
+            self._stdout = stdout
+        else:
+            self._stdout = open(stdout or os.devnull, 'w')
+        if isinstance(stderr, io.TextIOBase):
+            self._stderr = stderr
+        else:
+            self._stderr = open(stderr or os.devnull, 'w')
 
     def __enter__(self):
         self.old_stdout, self.old_stderr = sys.stdout, sys.stderr
