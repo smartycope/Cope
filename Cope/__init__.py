@@ -1,9 +1,13 @@
-__version__ = '2.0.0'
+__version__ = '2.2.0'
 
-# Dump everything
+# Import submodules
 from . import boilerplate
 from . import experimental
 from . import pygame
+from . import gym
+from . import debugging
+
+# Dump everything
 from .misc import *
 from .decorators import *
-from .gym import SimpleGym
+from .debugging import debug

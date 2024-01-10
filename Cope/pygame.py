@@ -1,4 +1,3 @@
-import pygame
 from typing import Union
 
 # TODO: tests
@@ -11,6 +10,8 @@ def rotateSurface(surface:pygame.Surface, angle:float, pivot:Union[tuple, list, 
             pivot (tuple, list, pygame.math.Vector2): The pivot point.
             offset (pygame.math.Vector2): This vector is added to the pivot.
     """
+    import pygame
+
     rotated_image = pygame.transform.rotozoom(surface, -angle, 1)  # Rotate the image.
     rotated_offset = offset.rotate(angle)  # Rotate the offset vector.
     # Add the offset vector to the center/pivot point to shift the rect.
