@@ -141,7 +141,7 @@ class SimpleGym(gym.Env, ABC):
 
             # Draw the helpful texts
             length = len(max(self.shown_vars.keys(), key=len))
-            strings = [f'{name}: {" "*(length - len(name))} {getattr(self, var, 'Not a Member')}' for name, var in self.shown_vars.items()]
+            strings = [f'{name}: {" "*(length - len(name))} {getattr(self, var, "Not a Member")}' for name, var in self.shown_vars.items()]
 
             # For some dumb error I don't understand
             try:
