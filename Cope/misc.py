@@ -254,6 +254,9 @@ def isiterable(obj, include_str:bool=True) -> bool:
     """ Returns True if you can iterate over obj. Optionally excludes strings """
     if isinstance(obj, str):
         return include_str
+    # A tuple type, for instance has __iter__, but isn't iterable
+    if isinstance(obj, type):
+        return False
     return (
         isinstance(obj, Iterable) or
         isgenerator(obj) or
@@ -268,6 +271,8 @@ def ensure_iterable(iter:Iterable, cast:type=list, ensure_cast_type:bool=True):
         Strings, in this context, don't count as iterables.
     """
     if not isiterable(iter, include_str=False):
+        print(iter)
+        print(cast)
         return cast((iter, ))
     else:
         if ensure_cast_type:
