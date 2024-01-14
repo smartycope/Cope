@@ -13,6 +13,8 @@ from varname import VarnameRetrievingError, argname, nameof
 from pprint import pformat
 from typing import *
 from rich import print
+# This is fantastic, include it.
+from traceback_with_variables import activate_by_import
 
 # from ._config import config
 # from ._None import _None
@@ -269,6 +271,7 @@ def print_context(calls:int=1, func:bool=True, file:bool=True, path:bool=False, 
 class Undefined: pass
 undefined = Undefined()
 
+# Original
 def debug(
     var=undefined,                # The variable to debug
     name: str=None,           # Don't try to get the name, use this one instead
@@ -420,7 +423,163 @@ def debug(
 
     # Does the same this as debugged used to
     return var
-#%% Tests
+
+
+
+def debug(
+    var=undefined,                # The variable to debug
+    name: str=None,           # Don't try to get the name, use this one instead
+    color=...,                # Literally any color specification you can think of
+    show: Literal['pprint', 'custom', 'repr']='custom',
+    func: bool=None,      # Expressly show what function we're called from
+    file: bool=None,      # Expressly show what file we're called from
+    path: bool=None,      # Show just the file name, or the full filepath
+    # useRepr: bool=False,      # Whether we should print the repr of var instead of str
+    calls: int=1,             # Add extra calls
+    active: bool=True,        # If this is false, don't do anything
+    background: bool=False,   # Whether the color parameter applies to the forground or the background
+    # limitToLine: bool=True,   # When printing iterables, whether we should only print items to the end of the line
+    # minItems: int=50,         # Minimum number of items to print when printing iterables (overrides limitToLine)
+    # maxItems: int=-1,         # Maximum number of items to print when printing iterables, use None or negative to specify no limit
+    depth: int=...,
+    width: int=...,
+    stackTrace: bool=False,   # Print a stack trace
+    raiseError: bool=False,   # If var is an error type, raise it
+    clr=...,                  # Alias of color
+    # repr: bool=False,         # Alias of useRepr
+    trace: bool=False,        # Alias of stackTrace
+    bg: bool=False,           # Alias of background
+    throwError: bool=False,   # Alias of raiseError
+    throw: bool=False         # Alias of raiseError
+    ) -> "var":
+    """ Print variable names and values for easy debugging.
+
+        Usage:
+            debug()          -> Prints a standard message to just tell you that it's getting called
+            debug('msg')     -> Prints the string along with metadata
+            debug(var)       -> Prints the variable name, type, and value
+            foo = debug(bar) -> Prints the variable name, type, and value, and returns the variable
+            @debug           -> Use as a decorator to make note of when the function is called
+
+        Args:
+            var: The variable or variables to print
+            name: Manully specify the name of the variable
+            color: A number between 0-5, or 3 or 4 tuple/list of color data to print the debug message as
+            func: Ensure that the function the current call is called from is shown
+            file: Ensure that the file the current call is called from is shown
+            path: Show the full path of the current file, isntead of it's relative path
+            useRepr: Use __repr__() instead of __str__() on the given variable
+            limitToLine: If var is a list/tuple/dict/set, only show as many items as will fit on one terminal line, overriden by minItems
+            minItems: If var is a list/tuple/dict/set, don't truncate more than this many items
+            maxItems: If var is a list/tuple/dict/set, don't show more than this many items
+            stackTrace: Prints a neat stack trace of the current call
+            calls: If you're passing in a return from a function, say calls=2
+            background: Changes the background color instead of the forground color
+            active: Conditionally disables the function
+            clr: Alias of color
+            _repr: Alias of useRepr
+            trace: Alias of stackTrace
+            bg: Alias of background
+    """
+    if not active or not __debug__:
+        return var
+
+    # TODO:
+    # Implement rich.inspect
+    # implement inspect.ismodule, .ismethod, .isfunction, .isclass, etc.
+
+
+    stackTrace = stackTrace or trace
+    # useRepr = useRepr or repr
+    background = background or bg
+    throwError = throw or throwError or raiseError
+    file = file or display_file
+    func = func or display_func
+    path = path or display_path
+    useColor = ('default' if clr is Ellipsis else clr) if color is Ellipsis else color
+
+    if isinstance(var, Warning):
+        useColor = 'warn'
+    elif isinstance(var, Exception):
+        useColor = 'error'
+
+    # if maxItems < 0 or maxItems is None:
+        # maxItems = 1000000
+
+    # +1 call because we don't want to get this line, but the one before it
+    metadata = get_metadata(calls+1)
+
+    _print_context = lambda: print(get_context(metadata, func, file, path), end='', style='context')
+
+    #* First see if we're being called as a decorator
+    # inspect.
+    if callable(var) and called_as_decorator('debug', metadata):
+        def wrap(*args, **kwargs):
+            # +1 call because we don't want to get this line, but the one before it
+            metadata = get_metadata(2)
+            print_debug_count()
+
+            if stackTrace:
+                print_stack_trace(2, func, file, path)
+
+            _print_context()  # was of style='note'
+            print(f'{var.__name__}() called!', style='note')
+            return var(*args, **kwargs)
+
+        return wrap
+
+    print_debug_count()
+
+    if stackTrace:
+        print_stack_trace(calls+1, func, file, path)
+
+    #* Only print the "HERE! HERE!" message
+    if var is undefined:
+        # print(get_context(metadata, func, file, path), end='', style=clr)
+        _print_context()
+
+        if not metadata.function.startswith('<'):
+            print(f'{metadata.function}() called ', end='', style=useColor)
+
+        print('HERE!', style=useColor)
+        return
+
+    #* Print the standard line
+    # print(get_context(metadata, func, file, path), end='', style='metadata')
+    _print_context()
+
+    #* Seperate the variables into a tuple of (typeStr, varString)
+    varType = get_full_typename(var)
+    if show == 'repr':
+        varVal = _repr(var)
+    else:
+        if isinstance(var, (tuple, list, set, dict)):
+            varVal  = prettify(var, method=show)
+        else:
+            varVal  = str(var)
+
+    #* Actually get the name
+    varName = get_varname(var, calls=calls, metadata=metadata) if name is None else name
+
+    # It's a string literal
+    if varName is None:
+        print('<literal> ', end='', style='type')
+        print(var, style='value')
+        return var
+
+    print(varType, end=' ', style='type')
+    print(varName, end=' ', style='name')
+    print('=',     end=' ', style='equals')
+    print(varVal,           style='value')
+
+    if isinstance(var, Exception) and throwError:
+        raise var
+
+    # Does the same this as debugged used to
+    return var
+
+
+# Tests
 if __name__ == '__main__':
     import sys
     from os.path import join, dirname

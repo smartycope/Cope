@@ -6,6 +6,8 @@ from ..misc import translate
 from colorsys import *
 
 def distinct_color(n: int) -> tuple:
+
+    # Credit to chatGPT
     # First, ensure if it's 0, we return black
     if n == 0:
         return 0, 0, 0
