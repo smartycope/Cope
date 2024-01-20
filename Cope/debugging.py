@@ -8,17 +8,18 @@ import inspect as _inspect
 from os import get_terminal_size
 from os.path import relpath
 # from re import search as re_search
+from .colors import parse_color
 from re import match as re_match
 from typing import Union, Literal
 from varname import VarnameRetrievingError, argname, nameof
 from pprint import pformat
 from typing import *
-from rich import print
 import logging
 # from logging import Logger
 from reprlib import Repr
 # This is fantastic. Use it.
 from traceback_with_variables import activate_by_import
+from rich import print
 
 Log = logging.getLogger(__name__)
 _repr = repr
@@ -27,6 +28,7 @@ root_dir = None
 display_func = True
 display_file = True
 display_path = False
+verbosity = 1
 
 def printArgs(*args, **kwargs):
     print('args:', args)
@@ -140,6 +142,7 @@ def get_full_typename(var, add_braces:bool=True) -> str:
 
 def print_debug_count(left_adjust:int=2):
     """ Increment and print the debug count """
+    global _debug_count
     _debug_count += 1
     print(f'{str(_debug_count)+":":<{left_adjust+2}}', end='', style='count')
 
@@ -172,12 +175,12 @@ def get_varname(var, full:bool=True, calls:int=1, metadata:inspect.FrameInfo=Non
             try:
                 rtn = nameof(var, frame=calls+1, vars_only=False)
             except Exception as e2:
-                if config.verbosity >= 2 and not isinstance(var, Exception):
+                if verbosity >= 2 and not isinstance(var, Exception):
                     raise e2
                 else:
                     rtn = get_varname_manually(calls+1)
     except VarnameRetrievingError as e:
-        if config.verbosity:
+        if verbosity:
             raise e
         else:
             rtn = get_varname_manually(calls+1)
@@ -578,6 +581,58 @@ class Debug:
         return var
 
 # debug = Debug()
+
+
+# A quick and dirty version just to get it working again
+def debug(var=undefined, name=None, color=1, trace=False, calls=1):
+    r, g, b = parse_color(color)
+
+    metadata = get_metadata(calls+1)
+    _print_context = lambda: print('[dark gray]' + str(get_context(metadata, True, True, True)) + '[/]', end='')
+
+    # Called with no arguments
+    if var is undefined:
+        _print_context()
+
+        # if not metadata.function.startswith('<'):
+            # print(f'{metadata.function}() called ', end='', style=useColor)
+
+        print('HERE!')
+        return
+
+    #* Print the standard line
+    # print(get_context(metadata, func, file, path), end='', style='metadata')
+    _print_context()
+
+    #* Seperate the variables into a tuple of (typeStr, varString)
+    varType = get_full_typename(var)
+    # if show == 'repr':
+        # varVal = _repr(var)
+    # else:
+    if isinstance(var, (tuple, list, set, dict)):
+        varVal  = prettify(var, method=show)
+    else:
+        varVal  = str(var)
+
+    #* Actually get the name
+    varName = name or get_varname(var, calls=calls, metadata=metadata)
+
+    # It's a string literal
+    if varName is None:
+        print('[type]', '<literal> ', end='')
+        print('[value]', var)
+        return var
+
+    print('[type]', varType, end=' ')
+    print('[name]', varName, end=' ')
+    print('[equals]', '=',   end=' ')
+    print('[value]', varVal)
+
+    # if isinstance(var, Exception) and throwError:
+        # raise var
+
+    # Does the same this as debugged used to
+    return var
 
 
 

@@ -22,5 +22,9 @@ def test_debug():
         print('test2 called')
 
     debug(test2)
+    debug(1)
+    debug()
+    var = 6
+    debug(var)
 
 test_debug()

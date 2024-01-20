@@ -7,7 +7,7 @@ from random import randint
 import os
 import sys
 from typing import *
-from .debugging import get_metadata
+# from .debugging import get_metadata
 from itertools import chain
 from inspect import isgenerator
 

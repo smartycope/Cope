@@ -2,7 +2,7 @@ import math
 # import color-names
 from typing import Tuple, Literal
 from ._named_colors import named_colors
-from ..misc import translate
+from .misc import translate
 from colorsys import *
 
 def distinct_color(n: int) -> tuple:

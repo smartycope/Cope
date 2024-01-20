@@ -10,7 +10,7 @@ from .point import *
 from .timing import *
 # from .prettyTable import *
 from .iterables import *
-from . import colors
+# from . import colors
 # from ._config import config as CopeConfig
 # from . import _config as confi
 from .errors import *
