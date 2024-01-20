@@ -4,6 +4,7 @@ Functions & classes that can be useful for debugging
 
 from inspect import stack
 import inspect
+import inspect as _inspect
 from os import get_terminal_size
 from os.path import relpath
 # from re import search as re_search
@@ -13,12 +14,13 @@ from varname import VarnameRetrievingError, argname, nameof
 from pprint import pformat
 from typing import *
 from rich import print
+import logging
+# from logging import Logger
+from reprlib import Repr
+# This is fantastic. Use it.
+from traceback_with_variables import activate_by_import
 
-# from ._config import config
-# from ._None import _None
-
-
-# print = config.console.out
+Log = logging.getLogger(__name__)
 _repr = repr
 _debug_count = 0
 root_dir = None
@@ -269,6 +271,7 @@ def print_context(calls:int=1, func:bool=True, file:bool=True, path:bool=False, 
 class Undefined: pass
 undefined = Undefined()
 
+# Original Version
 def debug(
     var=undefined,                # The variable to debug
     name: str=None,           # Don't try to get the name, use this one instead
@@ -420,7 +423,165 @@ def debug(
 
     # Does the same this as debugged used to
     return var
-#%% Tests
+
+class Debug:
+    def __init__(self):
+        Log.setLevel(logging.DEBUG)
+
+
+    def __call__(self,
+        var=undefined,
+        name:str=None,
+        color=...,
+        inspect:bool=False,
+        repr:bool=True,
+        trace:bool=False,
+        throw:bool=False,
+        calls:int=1,
+        active:bool=True,
+        clr=...,
+    ) -> "var":
+        """ Print variable names and values for easy debugging.
+
+            Usage:
+                debug()          -> Prints a standard message to just tell you that it's getting called
+                debug('msg')     -> Prints the string along with metadata
+                debug(var)       -> Prints the variable name, type, and value
+                foo = debug(bar) -> Prints the variable name, type, and value, and returns the variable
+                @debug           -> Use as a decorator to make note of when the function is called
+
+            Args:
+                var: The variable or variables to print
+                name: Manully specify the name of the variable
+                color/clr: Literally anything that specifies a color, including a single number for unique colors
+                inspect: Calls rich.inspect on var
+                repr: Uses repr by default, set to False to use str instead
+                trace: Prints a neat stack trace of the current call
+                calls: If you're passing in a return from a function, say calls=2
+                active: Conditionally disables the function
+        """
+        # If not active, don't display
+        if not active or not Log.isEnabledFor(logging.DEBUG):
+            return var
+
+        # print(_inspect.currentframe().f_back.function)
+        # print('---', stack()[-2].frame.f_code.co_names)
+        if hasattr(var, '__call__'):
+        # print(_inspect.signature)
+        # if _inspect.currentframe().f_back.f_locals.get('__class__') == self.__class__:
+            print("Called as a decorator")
+            return var
+        else:
+            print("Called directly")
+            return var
+
+
+        # 'clear',
+        # 'f_back',
+        # 'f_builtins',
+        # 'f_code',
+        # 'f_globals',
+        # 'f_lasti',
+        # 'f_lineno',
+        # 'f_locals',
+        # 'f_trace',
+        # 'f_trace_lines',
+        # 'f_trace_opcodes'
+
+        stackTrace = stackTrace or trace
+        # useRepr = useRepr or repr
+        background = background or bg
+        throwError = throw or throwError or raiseError
+        file = file or display_file
+        func = func or display_func
+        path = path or display_path
+        useColor = ('default' if clr is Ellipsis else clr) if color is Ellipsis else color
+
+        if isinstance(var, Warning):
+            useColor = 'warn'
+        elif isinstance(var, Exception):
+            useColor = 'error'
+
+        # if maxItems < 0 or maxItems is None:
+            # maxItems = 1000000
+
+        # +1 call because we don't want to get this line, but the one before it
+        metadata = get_metadata(calls+1)
+
+        _print_context = lambda: print(get_context(metadata, func, file, path), end='', style='context')
+
+        #* First see if we're being called as a decorator
+        # inspect.
+        if callable(var) and called_as_decorator('debug', metadata):
+            def wrap(*args, **kwargs):
+                # +1 call because we don't want to get this line, but the one before it
+                metadata = get_metadata(2)
+                print_debug_count()
+
+                if stackTrace:
+                    print_stack_trace(2, func, file, path)
+
+                _print_context()  # was of style='note'
+                print(f'{var.__name__}() called!', style='note')
+                return var(*args, **kwargs)
+
+            return wrap
+
+        print_debug_count()
+
+        if stackTrace:
+            print_stack_trace(calls+1, func, file, path)
+
+        #* Only print the "HERE! HERE!" message
+        if var is undefined:
+            # print(get_context(metadata, func, file, path), end='', style=clr)
+            _print_context()
+
+            if not metadata.function.startswith('<'):
+                print(f'{metadata.function}() called ', end='', style=useColor)
+
+            print('HERE!', style=useColor)
+            return
+
+        #* Print the standard line
+        # print(get_context(metadata, func, file, path), end='', style='metadata')
+        _print_context()
+
+        #* Seperate the variables into a tuple of (typeStr, varString)
+        varType = get_full_typename(var)
+        if show == 'repr':
+            varVal = _repr(var)
+        else:
+            if isinstance(var, (tuple, list, set, dict)):
+                varVal  = prettify(var, method=show)
+            else:
+                varVal  = str(var)
+
+        #* Actually get the name
+        varName = get_varname(var, calls=calls, metadata=metadata) if name is None else name
+
+        # It's a string literal
+        if varName is None:
+            print('<literal> ', end='', style='type')
+            print(var, style='value')
+            return var
+
+        print(varType, end=' ', style='type')
+        print(varName, end=' ', style='name')
+        print('=',     end=' ', style='equals')
+        print(varVal,           style='value')
+
+        if isinstance(var, Exception) and throwError:
+            raise var
+
+        # Does the same this as debugged used to
+        return var
+
+# debug = Debug()
+
+
+
+# Tests
 if __name__ == '__main__':
     import sys
     from os.path import join, dirname
