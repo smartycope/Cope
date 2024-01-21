@@ -242,7 +242,11 @@ else:
 
         def watch(self, name:str, default):
             """ Sets a single variable to be maintained and guarenteed to exist in st.session_state """
+            # If it's not already in st.session_state, add it
+            if name not in self._dict:
+                st.session_state[name] = default
             self._dict[name] = default
+
 
         def add_query(self, *names):
             """ Adds variables to be monitored with query parameters as well. Names must already be set

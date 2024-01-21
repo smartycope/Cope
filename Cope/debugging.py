@@ -610,7 +610,7 @@ def debug(var=undefined, name=None, color=1, trace=False, calls=1):
         # varVal = _repr(var)
     # else:
     if isinstance(var, (tuple, list, set, dict)):
-        varVal  = prettify(var, method=show)
+        varVal  = prettify(var)
     else:
         varVal  = str(var)
 
