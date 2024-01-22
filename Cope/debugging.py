@@ -18,7 +18,9 @@ import logging
 # from logging import Logger
 from reprlib import Repr
 # This is fantastic. Use it.
-from traceback_with_variables import activate_by_import
+try:
+    from traceback_with_variables import activate_by_import
+except ImportError: pass
 from rich import print
 
 Log = logging.getLogger(__name__)
