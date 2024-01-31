@@ -1,10 +1,12 @@
 """
 Functions & classes that extend the pygame
 """
-
+from .misc import RedirectStd
 from typing import Union
 try:
-    import pygame
+    # Don't print the annoying "welcome from the pygame community!" message
+    with RedirectStd():
+        import pygame
 except: pass
 else:
     # TODO: tests
