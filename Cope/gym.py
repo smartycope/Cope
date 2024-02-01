@@ -49,7 +49,7 @@ else:
                         are printed to the screen. The reason it's a dictionary and not a list is simply
                         for easy indexing: you can change this in the middle of the running loop, and
                         it will get added to the screen. Just make sure to reuse the keys.
-                        Attempting to set an item on an instance will set it to print
+                        Attempting to set an item on an instance will also set it to print
                         (i.e. `env['a'] = 'string'` is the same as `env.print['a'] = 'string'`)
 
             Default key handling:
@@ -62,16 +62,12 @@ else:
                 h shows a help menu on screen
                 >/< increase and decrease the FPS
 
-            NOTE: If you want pause to work, you'll have to add the following line to the top of your
-                step() function:
-                `if self.paused and not self.increment: return super().step(action)`
-
             In order to use this effectively, you need to overload:
                 __init__(), if you want to add any members
                 _get_obs()
                 _get_reward()
-                reset(seed, options), if you need any custom reset code
-                step(action), if you want to do anything
+                _step(action), don't overload step(), step() calls _step
+                _reset(seed=None, options=None), if you need any custom reset code (don't overload reset())
                 render_pygame(), render to self.surf
             and optionally:
                 _get_terminated(), if you want to use custom terminated criteria other than just max_steps
@@ -92,11 +88,11 @@ else:
                 `paused`: True if paused
                 `increment`: set to True internally to denote a single step while paused. step() sets
                     to False
-                `prints`: a dictionary of
         """
 
         FPS_STEP = 2
         SHOW_HELP_FADE_TIME = 10
+        FONT_SIZE = 10
         HELP_TEXT = """
             q: close window
             space: toggle pause
@@ -220,11 +216,17 @@ else:
             """
             # We need the following line to seed self.np_random
             super().reset(seed=seed)
+
+            self._reset(seed=seed, options=options)
+
             self.steps = 0
             self.just_reset = True
             self.reset_count += 1
 
             return self._get_obs(), self._get_info()
+
+        def _reset(seed=None, options=None):
+            raise NotImplementedError()
 
         def step(self, action):
             """ Call this last, and return it """
@@ -233,6 +235,11 @@ else:
             # If it's paused, don't bother checking if it's a valid action
             if self._assert_valid_action and not self.paused or self.increment:
                 assert self.action_space.contains(action), "Action given not within action_space"
+
+            if self.paused and not self.increment:
+                return self._get_obs(), self._get_reward(), self.__default_get_terminated(), self._get_truncated(), self._get_info()
+
+            self._step(action)
 
             if not self.paused or self.increment:
                 self.steps += 1
@@ -251,6 +258,9 @@ else:
             self._previous_step_called = now()
             return self._get_obs(), self._get_reward(), self.__default_get_terminated(), self._get_truncated(), self._get_info()
 
+        def _step(action):
+            raise NotImplementedError()
+
         def _init_pygame(self):
             if self.screen is None:
                 pygame.init()
@@ -259,7 +269,7 @@ else:
                 self.screen = pygame.display.set_mode(self.screen_size)
 
             if self.font is None:
-                self.font = pygame.font.SysFont("Verdana", 10)
+                self.font = pygame.font.SysFont("Verdana", self.FONT_SIZE)
 
             if self.surf is None:
                 self.surf = pygame.Surface(self.screen_size)
@@ -299,12 +309,12 @@ else:
 
                 # Draw all the text onto the surface
                 for offset, string in enumerate(strings):
-                    self.surf.blit(self.font.render(string, True, self.print_color), (5, 5 + offset*10))
+                    self.surf.blit(self.font.render(string, True, self.print_color), (5, 5 + offset*(self.FONT_SIZE + 2)))
 
                 if self._show_help:
                     for offset, string in enumerate(self._rendered_helps):
                         max_width = max(self._rendered_helps, key=lambda h: h.get_size()[0]).get_size()[0]
-                        self.surf.blit(string, (self.width - max_width, offset*10))
+                        self.surf.blit(string, (self.width - max_width, offset*(self.FONT_SIZE + 2)))
 
                 # I don't remember what this does, but I think it's important
                 self.surf = pygame.transform.scale(self.surf, self.screen_size)
