@@ -5,6 +5,7 @@ A bunch of miscellaneous functions that might be useful
 import re
 from random import randint
 import os
+import io
 import sys
 from typing import *
 # from .debugging import get_metadata
@@ -362,7 +363,6 @@ def invert_dict(d:dict) -> dict:
     """ Returns the dict given, but with the keys as values and the values as keys. """
     return dict(zip(d.values(), d.keys()))
 
-import io
 # Tested manually elsewhere
 # TODO: Add tests here
 class RedirectStd:
