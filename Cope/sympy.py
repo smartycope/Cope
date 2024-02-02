@@ -1,6 +1,8 @@
 """
 A bunch of functions and classes extending the sympy library
 """
+__version__ = '1.0.0'
+
 try:
     from sympy import *
 except: pass

@@ -1,8 +1,12 @@
 """
+A dictionary of color names with their associated color values
 Source: https://xkcd.com/color/rgb/
+"""
+__version__ = '1.0.0'
 
+"""
 Parsed with:
-    colors_str = https://xkcd.com/color/rgb.txt
+    colors_str = https://xkcd.com/color/rgb.txt # Copied verbatim
 
     from ezregex import *
     import re

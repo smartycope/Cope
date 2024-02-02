@@ -3,6 +3,8 @@ from ..debugging import print_context
 from enum import Enum
 from ._config import config
 
+# TODO: rewrite these to use logging instead
+
 class LogLevel(Enum):
     NONE = 0
     LOGGING = 1

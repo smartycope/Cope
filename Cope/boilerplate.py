@@ -1,5 +1,6 @@
 """
-Some stuff that I always forget the syntax for, or things which are useful so you don't have to retype them
+Some stuff that I always forget the syntax for, or things which are useful so you don't have to
+retype them
 """
 
 decorator = """

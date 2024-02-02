@@ -1,6 +1,8 @@
 """
 Functions & classes that extend the gymnasium library
 """
+__version__ = '1.0.0'
+
 from .misc import RedirectStd
 from sys import exit
 from abc import ABC
@@ -17,13 +19,6 @@ except:
         def __init__(self):
             raise ImportError("gymnasium or pygame not installed. Please install both before importing SimpleGym.")
 else:
-
-#// TODO: Simple gym should handle initialization better
-#// TODO: Simple gym should handle FPS and pause and step itself
-#// TODO: Simple gym should have a custom-render method (call render_{name} with getattr())
-#// TODO: import sys.exit in SimpleGym
-
-    # This was tested manually by implementing it in https://github.com/smartycope/AntAI
     class SimpleGym(gym.Env, ABC):
         """ A simplified Gymnasium enviorment that uses pygame and handles some stuff for you, like rendering
             keeping track of steps, returning the right things from the right functions, event handling,

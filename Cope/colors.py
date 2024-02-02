@@ -1,7 +1,9 @@
+""" Functions for working with colors """
+__version__ = '0.0.0'
+
 import math
-# import color-names
 from typing import Tuple, Literal
-from ._named_colors import named_colors
+from .named_colors import named_colors
 from .misc import translate
 from colorsys import *
 
