@@ -11,6 +11,10 @@ from typing import *
 # from .debugging import get_metadata
 from itertools import chain
 from inspect import isgenerator
+from rich import print as rprint
+from rich.panel import Panel
+import random
+from rich.console import Console
 
 def available(*args, null=None) -> list:
     """ Of the parameters passed, returns the parameters which are not `null` """
@@ -386,3 +390,25 @@ class RedirectStd:
         self._stdout.close(); self._stderr.close()
         sys.stdout = self.old_stdout
         sys.stderr = self.old_stderr
+
+
+# TODO: add tests
+def run_notecards(cards:dict):
+    """ A quick function for helping you practice notecards. `cards` is a dict of
+        {card front: card back}.
+    """
+    console = Console()
+    cur_front = ''
+    cur_back = ''
+    print('Press enter for the next card, f to flip the card, b to flip back, and q to quit')
+    while (resp := input()) != 'q':
+        console.clear()
+        if resp == '':
+            while (front := random.choice(list(cards.keys()))) == cur_front: pass
+            cur_front = front
+            cur_back = cards[front]
+            rprint(Panel(front))
+        elif resp == 'f':
+            rprint(Panel(cur_back))
+        elif resp == 'b':
+            rprint(Panel(front))
