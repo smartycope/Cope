@@ -243,7 +243,7 @@ else:
         def watch(self, name:str, default):
             """ Sets a single variable to be maintained and guarenteed to exist in st.session_state """
             # If it's not already in st.session_state, add it
-            if name not in self._dict:
+            if name not in st.session_state:
                 st.session_state[name] = default
             self._dict[name] = default
 
