@@ -1,17 +1,13 @@
 __version__ = '1.4.1'
-# from .debugging import debug
-# from .debugging import printArgs
-# from .decorators import *
-from .imports import *
-from .geometry import *
-from .logging import *
-from .misc import *
-from .point import *
-from .timing import *
-# from .prettyTable import *
-from .iterables import *
-# from . import colors
-# from ._config import config as CopeConfig
-# from . import _config as confi
-from .errors import *
-# from .linalg import *
+
+from . import constants
+from . import iterables
+from . import logging
+from . import misc
+from . import timing
+from . import imports
+from . import data
+from . import geometry
+from . import linalg
+from . import point
+from . import Psuedonym

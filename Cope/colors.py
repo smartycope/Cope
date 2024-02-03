@@ -1,12 +1,50 @@
+""" Functions for working with colors """
+__version__ = '0.0.0'
+
 import math
-# import color-names
 from typing import Tuple, Literal
-from ._named_colors import named_colors
+from .named_colors import named_colors
 from .misc import translate
 from colorsys import *
 
-def distinct_color(n: int) -> tuple:
 
+# These functions comprise the color algorithm for _matchJSON()
+def rgb2html(r, g, b):
+    return f'#{r:02x}{g:02x}{b:02x}'
+
+def html2rgb(html: str) -> tuple:
+    hex_color = html.lstrip('#')
+    rgb = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+    return rgb
+
+# TODO make this output rgb
+def generate_colors(amt, s=1, v=1, offset=0):
+    """ Generate `amt` number of colors evenly spaced around the color wheel
+        with a given saturation and value
+    """
+    amt += 1
+    return [toHtml(*map(lambda c: round(c*255), colorsys.hsv_to_rgb(*((offset + ((1/amt) * (i + 1))) % 1.001, s, v)))) for i in range(amt-1)]
+
+# TODO: Make this input any color and output rgb
+def furthest_colors(html, amt=5, v_bias=0, s_bias=0):
+    """ Gets the `amt` number of colors evenly spaced around the color wheel from the given color
+        `v_bias` and `s_bias` are between 0-1 and offset the colors
+    """
+    amt += 1
+    h, s, v = colorsys.rgb_to_hsv(*map(lambda c: c/255, toRgb(html)))
+
+    return [toHtml(*map(lambda c: round(c*255), colorsys.hsv_to_rgb(*((h + ((1/amt) * (i + 1))) % 1.001, (s+s_bias) % 1.001, (v+v_bias) % 1.001)))) for i in range(amt-1)]
+
+
+# TODO: tests
+def complimentary_color(*color, rtn:Literal['html', 'rgb', 'rgba', 'opengl', 'hsv', 'hls', 'yiq']='rgb'):
+    """ Returns the color opposite it on the color wheel, with the same saturation and value. """
+    h, s, v = parse_color(*color, rtn='hsv')
+
+    return parse_color(map(lambda i: i*255, hsv_to_rgb((h + .5) % 1.0001, s, v)), rtn=rtn)
+
+
+def distinct_color(n: int) -> tuple:
     # Credit to chatGPT
     # First, ensure if it's 0, we return black
     if n == 0:
@@ -17,6 +55,7 @@ def distinct_color(n: int) -> tuple:
     b = int(math.sin(angle + 4 * math.pi / 3) * 127 + 128)
     return r, g, b
 
+# TODO: change how inputs between 0-1 are handled
 # TODO: add input support for hsv, hls, and yiq
 # TODO: add input & output support for hsv, hls, and yiq with 0-255 instead of 0-1
 def parse_color(*args, rtn:Literal['html', 'rgb', 'rgba', 'opengl', 'hsv', 'hls', 'yiq']='rgb', **kwargs) -> 'type(rtn)':
@@ -79,7 +118,7 @@ def parse_color(*args, rtn:Literal['html', 'rgb', 'rgba', 'opengl', 'hsv', 'hls'
         if isinstance(args[0], str):
             # We've been given a hex string
             if args[0].startswith('#'):
-                r, g, b = map(lambda n: int(n, 16), args[0][1::2])
+                r, g, b = [int(html.lstrip('#')[i:i+2], 16) for i in (0, 2, 4)]
             # We've been given the name of a color
             else:
                 if (r, g, b := named_colors.get(args[0].lower())) is None:

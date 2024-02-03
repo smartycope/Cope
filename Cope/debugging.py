@@ -1,6 +1,7 @@
 """
 Functions & classes that can be useful for debugging
 """
+__version__ = '0.0.0'
 
 from inspect import stack
 import inspect

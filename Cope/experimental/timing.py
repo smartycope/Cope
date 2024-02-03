@@ -1,4 +1,5 @@
 from atexit import register as registerExit
+# TODO: reevaluate all these to use the timeit package instead
 
 timingData = {}
 def timeFunc(func, accuracy=5):

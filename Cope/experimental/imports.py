@@ -1,8 +1,11 @@
 from typing import Union, Iterable, Literal
 import importlib
 from varname import nameof
+import importlib.util
+import sys
 
 
+# depricated
 def installLib(libs:Iterable):
     libs = ' '.join(libs)
 
@@ -20,10 +23,12 @@ def installLib(libs:Iterable):
         else:
             useSubprocess()
 
+# depricated
 def niceInstallLib(libs:Iterable):
     if input(f'Would you like to install {" ".join(libs)}? (y/n): ').lower() == 'y':
         installLib(libs)
 
+# depricated
 def ensureImported(package:str, specificModules=[], as_=None,
                 if_unavailable:Literal['auto', 'warn', 'error']='auto',
                 _globals=globals(),
@@ -66,7 +71,7 @@ def ensureImported(package:str, specificModules=[], as_=None,
             _globals[as_ if as_ else package] = imported
     return True
 
-# todo
+# TODO: Rewrite this
 def checkImport(package:str, specificModules=[], _as=None,
                 fatal:bool=False, printWarning:Union[str, bool]=True,
                 _globals=globals(), _locals=locals(), level=0
@@ -97,6 +102,7 @@ def checkImport(package:str, specificModules=[], _as=None,
             globals()[_as if _as else package] = _temp
         return True
 
+# depricated
 def dependsOnPackage(package:str, specificModules=[], as_=None,
                     if_unavailable:Literal['auto', 'warn', 'error']='auto',
                     _globals=globals(), _locals=locals(),
@@ -111,11 +117,34 @@ def dependsOnPackage(package:str, specificModules=[], as_=None,
         return innerWrap
     return wrap
 
-def importpath(path, name, moduleName):
+
+# TODO: tests
+def importpath(path, name):
+    """ Import a specific script as a module
+        from https://docs.python.org/3/library/importlib.html
+    """
     spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
+    # sys.modules[spec.name] = module
+    sys.modules[name] = module
     spec.loader.exec_module(module)
+    # TODO: I'm not sure this will work, I think I'm doing it wrong
+    return importlib.import_module(name, name)
+
     # This is kinda ugly and nasty, but it works. For now.
-    globals()[moduleName] = importlib.import_module(
-        name, moduleName).__getattribute__(moduleName)
+    # globals()[moduleName] = importlib.import_module(
+    #     name, moduleName).__getattribute__(moduleName)
+
+# TODO: tests
+def lazy_import(name):
+    """ Import a package upon being used, instead of immediately.
+        Useful for packages that want optional dependencies, like this one
+        copied from https://docs.python.org/3/library/importlib.html
+    """
+    spec = importlib.util.find_spec(name)
+    loader = importlib.util.LazyLoader(spec.loader)
+    spec.loader = loader
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    loader.exec_module(module)
+    return module

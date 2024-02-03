@@ -1,8 +1,11 @@
 """
-Functions & classes that extend the pygame
+Functions & classes that extend the pygame library
 """
-from .misc import RedirectStd
-from typing import Union
+__version__ = '0.0.0'
+
+# from .imports import lazy_import
+# from .misc import RedirectStd
+# from typing import Union
 try:
     # Don't print the annoying "welcome from the pygame community!" message
     with RedirectStd():
@@ -10,7 +13,8 @@ try:
 except: pass
 else:
     # TODO: tests
-    def rotateSurface(surface:pygame.Surface, angle:float, pivot:Union[tuple, list, pygame.math.Vector2], offset:pygame.math.Vector2):
+    def rotateSurface(surface:pygame.Surface, angle:float, pivot:tuple|list|pygame.math.Vector2, offset:pygame.math.Vector2):
+    # def rotateSurface(surface, angle:float, pivot:tuple|list|"pygame.math.Vector2", offset:"pygame.math.Vector2"):
         """ Rotate the surface around the pivot point.
 
             Args:

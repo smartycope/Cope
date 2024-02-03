@@ -1,3 +1,8 @@
+"""
+Functions & classes that extend the plotly library
+"""
+__version__ = '1.0.0'
+
 from .misc import isiterable
 try:
     import streamlit as st

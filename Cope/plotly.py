@@ -1,6 +1,7 @@
 """
 Functions & classes that extend the plotly library
 """
+__version__ = '1.0.0'
 
 try:
     import polars as pl
