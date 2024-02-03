@@ -30,7 +30,8 @@ else:
         # The idea behind this ridgeline plot with Plotly is to add traces manually
         assert z is not None
         # Cast to polars, in case pandas was given
-        df = pl.DataFrame(df)
+        if not isinstance(df, pl.DataFrame):
+            df = pl.DataFrame(df)
 
         if y is None:
             assert isinstance(z, (tuple, list))
