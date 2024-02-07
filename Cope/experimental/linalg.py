@@ -1,9 +1,10 @@
-from .decorators import reprise, untested
-from .debugging import debug
+# from .decorators import reprise, untested
+from ..debugging import debug
 from .imports import dependsOnPackage, ensureImported
 import sympy as sp
 from sympy import Matrix, ImmutableMatrix, latex, sympify, pprint, eye, randMatrix, flatten, sqrt, zeros, Integer, Float
-import ezregex as er
+# TODO:
+# import ezregex as er
 
 def matrix(string, rows=None, cols=None, cp=False, np=False, immutable=False, verbose=False):
     # Parse params
@@ -192,12 +193,12 @@ def vectorLength(v):
 def EuclideanDist(u, v):
     return vectorLength(u-v)
 
-@untested
+# @untested
 def manhattanDist(a, b):
     assert len(a) == len(b)
     return sum(abs(a[i] - b[i]) for i in range(len(a)))
 
-@untested
+# @untested
 def minkowskiDist(a, b, p):
     assert len(a) == len(b)
     return sum([abs(a[i] - b[i])**p for i in range(len(a))])**(1/p)

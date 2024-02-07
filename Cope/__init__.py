@@ -3,7 +3,7 @@ __version__ = '2.5.0'
 # Import submodules
 from . import boilerplate
 from . import experimental
-from . import pygame
+# from . import pygame
 from . import gym
 from . import debugging
 from . import meme

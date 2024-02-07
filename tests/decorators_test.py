@@ -2,7 +2,7 @@ from os.path import join, dirname; import sys; sys.path.append(join(dirname( __f
 from Cope import *
 
 def test_todo():
-    return
+    assert False, 'TODO: toto tests'
 
     todo('testing todo')
     out, err = capfd.readouterr()
@@ -41,31 +41,9 @@ def test_todo():
     else:
         print("class decorator test failed.")
 
-def test_decorator():
-    return
-
-    def decorator(*decoratorArgs, **decoratorKwArgs):
-        def wrap(functionBeingDecorated):
-            def innerWrap(*decoratedArgs, **decoratedKwArgs):
-                debug(decoratorArgs)
-                debug(decoratorKwArgs)
-                debug(functionBeingDecorated)
-                debug(decoratedArgs)
-                debug(decoratedKwArgs)
-                return functionBeingDecorated(*decoratedArgs, **decoratedKwArgs)
-            return innerWrap
-        return wrap
-
-    @decorator("decoratorArg1", "decoratorArg2", decoratorKwArg="decoratorKwValue")
-    def testFunc(funcArg1, funcArg2, funcKwArg='funcKwArg'):
-        debug(funcArg1)
-        debug(funcArg2)
-        debug(funcKwArg)
-
-    testFunc("calledArg1", 'calledArg2', funcKwArg='calledKwArg')
-
 def test_confidence():
-    return
+    assert False, 'TODO: confidence tests'
+
     @confidence(29)
     def testFunc(funcArg1, funcArg2, funcKwArg='funcKwArg'):
         debug(funcArg1)
@@ -126,3 +104,11 @@ def test_confidence():
         testFunc9()
     except TypeError:
         print('testFunc9 worked')
+
+todo
+confidence
+def test_depricated():
+    assert False, 'TODO: @depricated tests'
+
+def test_reprise():
+    assert False, 'TODO: @reprise tests'

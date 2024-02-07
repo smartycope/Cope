@@ -7,18 +7,23 @@ from .misc import RedirectStd
 from sys import exit
 from abc import ABC
 from time import sleep, time as now
-try:
-    import gymnasium as gym
-    # Don't print the annoying "welcome from the pygame community!" message
-    with RedirectStd():
-        import pygame
-        from pygame import Rect
-except:
-    # So it still gives an error, but only if we try to use it
-    class SimpleGym:
-        def __init__(self):
-            raise ImportError("gymnasium or pygame not installed. Please install both before importing SimpleGym.")
-else:
+from .imports import lazy_import, ensure_imported
+# try:
+
+# import gymnasium as gym
+gym = lazy_import('gymnasium')
+# Don't print the annoying "welcome from the pygame community!" message
+# with RedirectStd():
+pygame = lazy_import('pygame')
+# import pygame
+# from pygame import Rect
+# except:
+#     # So it still gives an error, but only if we try to use it
+#     class SimpleGym:
+#         def __init__(self):
+#             raise ImportError("gymnasium or pygame not installed. Please install both before importing SimpleGym.")
+# else:
+if gym:
     class SimpleGym(gym.Env, ABC):
         """ A simplified Gymnasium enviorment that uses pygame and handles some stuff for you, like rendering
             keeping track of steps, returning the right things from the right functions, event handling,
@@ -256,6 +261,7 @@ else:
         def _step(action):
             raise NotImplementedError()
 
+        @ensure_imported(pygame)
         def _init_pygame(self):
             if self.screen is None:
                 pygame.init()
@@ -389,3 +395,9 @@ else:
                 pygame.quit()
                 self.screen = None
                 self.font = None
+
+else:
+    # So it still gives an error, but only if we try to use it
+    class SimpleGym:
+        def __new__(*args, **kwargs):
+            raise ImportError("gymnasium not installed. Run `pip install gymnasium` before importing SimpleGym.")

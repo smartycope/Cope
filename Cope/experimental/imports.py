@@ -3,7 +3,7 @@ import importlib
 from varname import nameof
 import importlib.util
 import sys
-
+import logging
 
 # depricated
 def installLib(libs:Iterable):
@@ -134,17 +134,3 @@ def importpath(path, name):
     # This is kinda ugly and nasty, but it works. For now.
     # globals()[moduleName] = importlib.import_module(
     #     name, moduleName).__getattribute__(moduleName)
-
-# TODO: tests
-def lazy_import(name):
-    """ Import a package upon being used, instead of immediately.
-        Useful for packages that want optional dependencies, like this one
-        copied from https://docs.python.org/3/library/importlib.html
-    """
-    spec = importlib.util.find_spec(name)
-    loader = importlib.util.LazyLoader(spec.loader)
-    spec.loader = loader
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[name] = module
-    loader.exec_module(module)
-    return module
