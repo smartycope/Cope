@@ -1,9 +1,10 @@
 """
 Some useful abstractions of imports
 """
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 import importlib
+import importlib.util
 from varname import argname
 import sys
 

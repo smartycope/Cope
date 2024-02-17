@@ -1,8 +1,8 @@
-__version__ = '2.5.0'
+__version__ = '2.5.1'
 
 # Import submodules
 from . import boilerplate
-from . import experimental
+# from . import experimental
 # from . import pygame
 from . import gym
 from . import debugging
