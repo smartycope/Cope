@@ -16,7 +16,7 @@ prerelease = 'hatch build'
 
 [project]
 name = 'Cope'
-version = '2.5.1'
+version = '2.5.2'
 description = 'A bunch of generic functions and classes useful in multiple projects'
 dependencies = [
     'varname',
