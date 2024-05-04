@@ -14,7 +14,12 @@ def look_at_this_graph(graph, fudge=(0, 28)):
     template = Image.open(impresources.files(assets) / 'look at this photograph template.png')
     mask = Image.open(impresources.files(assets) / 'look at this photograph mask.png').convert('L')
 
-    if matplotlib and isinstance(graph, matplotlib.figure.Figure):
+    try:
+        is_matplotlib = isinstance(graph, matplotlib.figure.Figure)
+    except:
+        is_matplotlib = False
+
+    if matplotlib and is_matplotlib:
         graph.canvas.draw()
         raw_graph = Image.frombytes('RGB', graph.canvas.get_width_height(), graph.canvas.tostring_rgb())
     elif type(graph) is str:
