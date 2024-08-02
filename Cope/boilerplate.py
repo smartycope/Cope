@@ -1,20 +1,9 @@
 """
-Some stuff that I always forget the syntax for, or things which are useful so you don't have to
-retype them
+Things which are useful so you don't have to retype them
 """
 
-decorator = """
-    def decorator(*decoratorArgs, **decoratorKwArgs):
-        def wrap(func):
-            def innerWrap(*funcArgs, **funcKwArgs):
-                return func(*funcArgs, **funcKwArgs)
-            return innerWrap
-        return wrap
-    """
-
-
 class CommonResponses:
-    """ A collection of default responses for inputs. Make sure to use .lower() when testing agaisnt these.
+    """ A collection of default responses for inputs. Make sure to use .lower() when testing against these.
         Note: There is some overlap between them, so testing order matters.
     """
     YES   = ('y', 'yes', 'ya', 'yeah', 'si', 'true', 'definitely', 'accurate', 'totally', 'yup')

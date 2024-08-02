@@ -5,7 +5,6 @@ __version__ = '1.0.1'
 
 import importlib
 import importlib.util
-from varname import argname
 import sys
 
 def lazy_import(name:str):
@@ -35,6 +34,7 @@ def ensure_imported(package, pip_name:str=...):
 
         This decorator only works with functions. To use with a class, decorate __init__()
     """
+    from varname import argname
     name = argname('package')
     # If the installation name isn't specified, assume it's the same as the package name
     if pip_name is Ellipsis:

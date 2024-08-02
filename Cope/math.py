@@ -1,3 +1,4 @@
+
 def absdeg(angle):
     """ If an angle (in degrees) is not within 360, then this cuts it down to within 0-360 """
     angle = angle % 360.0
@@ -6,14 +7,11 @@ def absdeg(angle):
     return angle
 
 def absrad(angle):
-    """ If an angle (in radians) is not within 2Pi, then this cuts it down to within 0-2Pi """
+    """ If an angle (in radians) is not within 2Pi, then this cuts it down proportionally to within 0-2Pi """
     angle = angle % (pi*2)
     if angle < 0:
         angle += (pi*2)
     return angle
-
-def dist(ax, ay, bx, by):
-    return sqrt(((bx - ax)**2) + ((by - ay)**2))
 
 def normalize2rad(a):
     # while a < 0: a += math.tau

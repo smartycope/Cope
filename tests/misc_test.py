@@ -1,5 +1,5 @@
 from os.path import join, dirname; import sys; sys.path.append(join(dirname( __file__ ), '..'))
-from Cope.misc import *
+from Cope.util import *
 from Cope.experimental import insert_newlines
 import pytest
 from unittest.mock import patch, call
@@ -25,11 +25,11 @@ def test_only1():
     assert only1(42, null=None) == True
 
 def test_interpret_percentage():
-    assert interpret_percentage(0.5) == 0.5
-    assert interpret_percentage(75) == 0.75
-    assert interpret_percentage(1.25) == 0.0125
-    assert interpret_percentage(0.1) == 0.1
-    assert interpret_percentage(150) == 1.5
+    assert percentage(0.5) == 0.5
+    assert percentage(75) == 0.75
+    assert percentage(1.25) == 0.0125
+    assert percentage(0.1) == 0.1
+    assert percentage(150) == 1.5
 
 def test_randbool():
     assert randbool() in [True, False]
@@ -92,11 +92,11 @@ def test_constrain():
     assert constrain(3, 1, 5) == 3
 
 def test_translate():
-    assert translate(5, 0, 10, 20, 40) == 30
+    assert rescale(5, 0, 10, 20, 40) == 30
     # assert translate(15, 10, 20, 0, 100) == 75
-    assert translate(-5, -10, 0, 0, 50) == 25
+    assert rescale(-5, -10, 0, 0, 50) == 25
     # assert translate(8, 2, 6, 0, 10) == 5
-    assert translate(3, 1, 5, 10, 20) == 15
+    assert rescale(3, 1, 5, 10, 20) == 15
 
 def test_frange():
     result = list(frange(1.5, 5.5, 1.0))

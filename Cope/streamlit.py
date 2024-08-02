@@ -1,12 +1,9 @@
 """
 Functions & classes that extend the streamlit library
-If ss is not found in this module, it means you don't have streamlit installed.
 """
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 
-from .misc import isiterable
-from .imports import lazy_import
-st = lazy_import('streamlit')
+import streamlit as st
 
 # This is "tested" by Mathland, in which it is fully integrated
 
@@ -274,5 +271,4 @@ class SS:
                 for name in st.query_params.to_dict().keys():
                     st.session_state[name] = self._get_query_param(name)
 
-if st:
-    ss = SS()
+ss = SS()

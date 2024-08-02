@@ -1,10 +1,7 @@
 # from .decorators import reprise, untested
-from ..debugging import debug
-from .imports import dependsOnPackage, ensureImported
+from .debugging import debug
 import sympy as sp
 from sympy import Matrix, ImmutableMatrix, latex, sympify, pprint, eye, randMatrix, flatten, sqrt, zeros, Integer, Float
-# TODO:
-# import ezregex as er
 
 def matrix(string, rows=None, cols=None, cp=False, np=False, immutable=False, verbose=False):
     # Parse params

@@ -2,7 +2,7 @@ from os.path import join, dirname; import sys; sys.path.append(join(dirname( __f
 from Cope import *
 
 def test_todo():
-    assert False, 'TODO: toto tests'
+    assert False, 'TODO: todo tests'
 
     todo('testing todo')
     out, err = capfd.readouterr()

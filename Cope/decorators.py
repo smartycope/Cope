@@ -2,11 +2,9 @@
 Miscellaneous decorators that can be useful
 """
 
-from .debugging import get_metadata, called_as_decorator, print_debug_count, get_context, print_context
-from .misc import interpret_percentage
+from .debugging import get_metadata, called_as_decorator, print_debug_count, get_context
+from .util import percentage
 from warnings import warn
-# from .colors import coloredOutput, darken
-# from ._config import config
 _todoCalls = set()
 hide_todo = False
 
@@ -70,58 +68,50 @@ def todo(feature:str=None, enabled:bool=True, blocking:bool=False, limit:bool=Tr
         printTodo(False)
 
 def confidence(level:float):
-    if not __debug__:
-        return
+    """ A decorator useful for communicating the confidence in a function. Useful for writing quick-and-dirty APIs.
+        Not meant to be used in a production environment.
 
-    level = interpret_percentage(level) * 100
+        `level` is given as a percentage (as a float or an int, both work), and that is the "percent confident" you are
+        that the function/class will work as intended.
+
+        * If `level` < 95% (P < .05), a warning is printed that the function may not work.
+        * If `level` < 50%, a UserWarning is raised indicating the function will probably not work.
+        * If `level` < 10%, an Exception is raised indicating the function will almost certainly not work.
+
+        To disable the warnings, you can pass `_warn=False` to the function when calling it. If `level` == 0, however,
+        it will still print a warning anyway.
+
+        NOTE:
+            * Does nothing if __debug__ is not True
+            * Don't put 100%, unless the function is mathematically proven
+    """
+    level = percentage(level) * 100
+
+    # This is a pet-peeve
+    if level > 100:
+        raise ValueError(f"You can't be {level}% confident, that's not how it works.")
 
     def wrap(func):
-        def innerWrap(*funcArgs, **funcKwArgs):
+        def inner_wrap(*args, _warn=True, **kwargs):
+            if __debug__:
+                # Definite Failure
+                if level <= 0:
+                    if _warn:
+                        raise Exception(f"{func.__name__} will not work as intended. ({level}% confidence)")
+                    else:
+                        warn(f"{func.__name__} will not work as intended. ({level}% confidence)")
+                if level < 5 and _warn:
+                    raise Exception(f"{func.__name__} will almost certainly not work as intended. ({level}% confidence)")
+                # Likely Failure
+                elif level < 50 and _warn:
+                    raise UserWarning(f"{func.__name__} will probably not work as intended. ({level}% confidence)")
+                # Possible Failure
+                elif level < 95 and _warn:
+                    warn(f"{func.__name__} may not work as intended. ({level}% confidence)")
 
-            # This is a pet-peeve
-            if level > 100:
-                raise TypeError(f"You can't be {level}% confident, that's not how it works.")
-            elif level == 100:
-                raise EpistemologicalWarning(f'Are you *sure* you\'re 100% confident? (not 99.99%?)')
-            # Definite Failure
-            elif level < 10:
-                raise UserWarning(f"{func.__name__} will almost certainly going to fail. ({level}% confidence)")
-            # Likely Failure
-            elif level <= 50:
-                print_context(3, func=False, color='warn')
-                print(f"Warning: {func.__name__} will probably fail. ({level}% confidence)", style='warn')
-            # Possible Failure
-            elif level < 80:
-                # print_context(3, func=False, color='confidence_warning')
-                print(f"Warning: {func.__name__} might not work. ({level}% confidence)", style='confidence_warning')
-
-            return func(*funcArgs, **funcKwArgs)
-        return innerWrap
+            return func(*args, **kwargs)
+        return inner_wrap
     return wrap
 
-def depricated(why=''):
-    if not __debug__:
-        return
-
-    def wrap(func):
-        def innerWrap(*funcArgs, **funcKwArgs):
-
-            print_context(2, color='warn')
-            warn(f"{func.__name__} is Depricated{': ' if len(why) else '.'}{why}")
-
-            return func(*funcArgs, **funcKwArgs)
-        return innerWrap
-    return wrap
-
-def reprise(obj: type, *args, **kwargs) -> type:
-    """
-    A class decorator that sets the __repr__ member to the __str__ member.
-    Not super useful, but nice for quick custom classes.
-    """
-    obj.__repr__ = obj.__str__
-    return obj
-
-
-confident = confidence
 untested = confidence(51)
-tested = confidence(95)
+tested = works  = confidence(96)

@@ -1,9 +1,11 @@
 """
 A bunch of functions and classes extending the sympy library
 """
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 
-def categorize(expr:'Expr', unknown:'Symbol'=...) -> list:
+from sympy import Symbol, Pow, Rational, Expr
+
+def categorize(expr:Expr, unknown:Symbol=...) -> list:
     """ Catagorize `expr` as a function of any of:
             polynomial
             rational
@@ -19,8 +21,6 @@ def categorize(expr:'Expr', unknown:'Symbol'=...) -> list:
 
         `unknown` defaults to Symbol('x')
     """
-    from sympy import Symbol, Pow, Rational
-
     if unknown is ...:
         Symbol('x')
 

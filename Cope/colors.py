@@ -4,7 +4,8 @@ __version__ = '0.0.0'
 import math
 from typing import Tuple, Literal
 from .named_colors import named_colors
-from .misc import translate
+from .util import translatevarname
+rich
 from colorsys import *
 
 
@@ -108,6 +109,7 @@ def parse_color(*args, rtn:Literal['html', 'rgb', 'rgba', 'opengl', 'hsv', 'hls'
         NOTE: Don't pass OpenGL colors as dicts or as keyword arguements. It will interpret them as
             RGBA parameters.
     """
+    warn("Don't use this. Use the `Colour` library instead.")
     assert len(args) or len(kwargs)
     a = 255
     r = None

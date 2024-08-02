@@ -1,7 +1,11 @@
 """
 Functions & classes that extend the plotly library
 """
-__version__ = '1.0.0'
+__version__ = '1.1.0'
+
+import polars as pl
+import numpy as np
+import plotly.graph_objects as go
 
 # Tested manually elsewhere
 # TODO: add manual tests here
@@ -22,10 +26,6 @@ def ridgeplot(df:'DataFrame', x:str, y:str=None, z:str=None, dist:float=.5, over
         `overlap` effects the size of the shading directly. Usually between -1
             and 1.
     """
-    import polars as pl
-    import numpy as np
-    import plotly.graph_objects as go
-
     # The idea behind this ridgeline plot with Plotly is to add traces manually
     assert z is not None
     # Cast to polars, in case pandas was given

@@ -2,12 +2,11 @@ from .imports import try_import
 from io import BytesIO
 from importlib import resources as impresources
 from . import assets
-
+from PIL import Image
+from PIL import ImageOps
 
 def look_at_this_graph(graph, fudge=(0, 28)):
     """ LOOK AT THIS _____GRAPH!!! """
-    from PIL import Image
-    from PIL import ImageOps
     matplotlib = try_import('matplotlib')
     plotly = try_import('plotly')
 

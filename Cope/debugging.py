@@ -18,10 +18,8 @@ from typing import *
 import logging
 # from logging import Logger
 from reprlib import Repr
-# This is a fantastic library. Use it if we have it.
-try:
-    from traceback_with_variables import activate_by_import
-except ImportError: pass
+# This is a fantastic library.
+from traceback_with_variables import activate_by_import
 from rich import print
 
 Log = logging.getLogger(__name__)

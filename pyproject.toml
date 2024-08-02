@@ -5,7 +5,7 @@ license = 'MIT'
 url = 'https://github.com/smartycope/Cope'
 
 [requires]
-python_version = ['3.10', '3.11', '3.6', '3.7', '3.8', 'pypy', 'pypy3']
+python_version = ['3.10', '3.11', '3.6', '3.7', '3.8', 'pypy', 'pypy3', '3.12']
 
 [build-system]
 requires = ['setuptools', 'wheel', 'hatchling']
@@ -16,14 +16,84 @@ prerelease = 'hatch build'
 
 [project]
 name = 'Cope'
-version = '2.5.2'
+dynamic = ["version"]
 description = 'A bunch of generic functions and classes useful in multiple projects'
-dependencies = [
-    'varname',
-    'rich',
+dependencies = []
+requires-python = ">=3.8"
+readme = "README.md"
+license = "MIT"
+authors = [
+  { name = "Copeland Carter", email = "smartycope@gmail.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
 ]
 
+[tool.hatch.version]
+path = "Cope/__init__.py"
+
+[project.urls]
+Issues = "https://github.com/smartycope/Cope/issues"
+Source = "https://github.com/smartycope/Cope"
+
+
 [project.optional-dependencies]
-linalg = [
-  'sympy'
+sympy = ['sympy']
+plotly = ['polars', 'numpy', 'plotly']
+streamlit = ['streamlit']
+misc = ['rich', 'sympy', 'clipboard']
+meme = ['pillow']
+gym = ['gymnasium', 'pygame']
+debug = ['varname', 'rich', 'traceback_with_variables]
+decorators = ['Depricated']
+pygame = ['pygame']
+linalg = ['sympy', 'numpy']
+
+
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "coverage run -m pytest {args    :tests}"
+cov-report = [
+  "- coverage combine",
+  "coverage report",
+]
+cov = [
+  "test-cov",
+  "cov-report",
+]
+
+[tool.hatch.envs.all.matrix]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+[tool.hatch.envs.types]
+dependencies = [
+  "mypy>=1.0.0",
+]
+
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:ezregex tests}"
+
+[tool.coverage.run]
+source_pkgs = ["ezregex", "tests"]
+branch = true
+parallel = true
+omit = [
+  "ezregex/__init__.py",
+]
+
+[tool.coverage.paths]
+ezregex = ["ezregex", "*/ezregex/ezregex"]
+tests = ["tests", "*/ezregex/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
 ]

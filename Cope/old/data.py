@@ -1,3 +1,10 @@
+"""
+DON'T USE ANY OF THESE
+They're all old functions from when I very first started learning Data Science.
+They are terrible.
+But I don't want to get rid of them.
+"""
+
 try:
     import pandas as pd
     from imblearn.over_sampling import RandomOverSampler
@@ -204,23 +211,6 @@ else:
 
         else:
             raise TypeError(f"Invalid type {type(data)} given")
-
-    def normalizePercentage(p, error='Percentage is of the wrong type (int or float expected)'):
-        if isinstance(p, int):
-            return p / 100
-        elif isinstance(p, float):
-            return p
-        elif isinstance(p, bool):
-            if p is True:
-                return 1.
-            else:
-                return 0.
-        else:
-            if error is not None:
-                raise TypeError(error)
-
-    def isiterable(obj, includeStr=False):
-        return isinstance(obj, Iterable) and (type(obj) is not str if not includeStr else True)
 
     def sort_dict_by_value_length(d):
         return dict(sorted(d.items(), key=lambda item: len(item[1])))
